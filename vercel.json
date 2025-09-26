@@ -1,8 +1,9 @@
 {
   "version": 2,
+  "buildCommand": "npm run build",
   "builds": [
     {
-      "src": "dist/server.js",
+      "src": "package.json",
       "use": "@vercel/node"
     }
   ],
@@ -11,5 +12,11 @@
       "src": "/(.*)",
       "dest": "/dist/server.js"
     }
-  ]
+  ],
+  "functions": {
+    "dist/server.js": {
+      "maxDuration": 30,
+      "includeFiles": "public/**"
+    }
+  }
 }
