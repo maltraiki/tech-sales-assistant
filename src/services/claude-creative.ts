@@ -379,7 +379,30 @@ IMPORTANT GUIDELINES:
                 block.type === 'text'
         );
 
-        const finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
+        let finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
+
+        // Add shopping links section if we have them
+        if (shoppingLinks.length > 0) {
+            const shoppingSection = language === 'ar'
+                ? '\n\n🛍️ **أين تشتري في السعودية:**\n\n'
+                : '\n\n🛍️ **Where to Buy in Saudi Arabia:**\n\n';
+
+            let linksText = shoppingSection;
+            linksText += '```\n';
+            shoppingLinks.forEach(link => {
+                const price = link.price ? ` - ${link.price}` : '';
+                linksText += `📦 ${link.store}${price}\n`;
+            });
+            linksText += '```\n';
+
+            if (language === 'ar') {
+                linksText += '\n💡 **نصيحة:** قارن الأسعار بين المتاجر قبل الشراء. الأسعار قد تختلف حسب العروض والمخزون.';
+            } else {
+                linksText += '\n💡 **Pro Tip:** Compare prices across stores before buying. Prices may vary based on promotions and stock availability.';
+            }
+
+            finalResponse += linksText;
+        }
 
         console.log(`\n✅ Query processed creatively!\n`);
 
@@ -387,7 +410,7 @@ IMPORTANT GUIDELINES:
             response: finalResponse,
             image: productImage,
             images: productImages.length > 0 ? productImages : undefined,
-            prices: priceComparison
+            prices: shoppingLinks
         };
 
     } catch (error) {
