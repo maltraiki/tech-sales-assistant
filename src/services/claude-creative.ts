@@ -3,7 +3,6 @@ import { SearchResponse } from '../types.js';
 import { getProductImage, comparePrices } from './serper.js';
 import { getDirectProductLinks, getShoppingLinks } from './shopping-links.js';
 import { findProductImage } from '../data/products.js';
-import { getTechJoke, getFunEnding } from '../utils/tech-jokes.js';
 
 export async function processQuery(query: string, language: string = 'en'): Promise<SearchResponse> {
     console.log(`\n🤖 Processing creative query: "${query}" in ${language}\n`);
@@ -204,7 +203,10 @@ export async function processQuery(query: string, language: string = 'en'): Prom
 - قيمة إعادة البيع
 
 🏆 **التوصية النهائية**
-أفضل للاستخدامات المختلفة مع تبرير واضح`;
+أفضل للاستخدامات المختلفة مع تبرير واضح
+
+😂 **نكتة تقنية مضحكة**
+اختتم بنكتة تقنية مضحكة وعفوية عن المقارنة - خليها جديدة وما تكررها أبد!`;
         } else {
             systemPrompt += `
 
@@ -298,7 +300,10 @@ Best for power users: [Detailed explanation]
 Best for photography: [Specific scenarios]
 Best for gaming: [Frame rates, thermal performance]
 Best for battery life: [Usage patterns]
-Best value proposition: [Price to performance ratio]`;
+Best value proposition: [Price to performance ratio]
+
+😂 **TECH HUMOR TIME**
+End with a spontaneous, original tech joke about this comparison - make it fresh and funny every time!`;
         } else {
             systemPrompt += `
 
@@ -348,7 +353,9 @@ REMEMBER:
 - Be real about any weak points (no device is perfect)
 - Make tech FUN not boring!
 - Use emojis to show excitement! 🎉
-- Keep it casual and friendly!`;
+- Keep it casual and friendly!
+- Be spontaneously funny - create original jokes on the fly!
+- Never repeat the same joke - each response should be unique!`;
     }
 
     if (language === 'ar') {
@@ -360,7 +367,9 @@ REMEMBER:
 - اذا في شي ضعيف قل عليه (ما في جوال كامل)
 - خل التقنية متعة مو ملل!
 - استخدم إيموجيز عشان نعبر عن الحماس! 🎉
-- تكلم عفوي وودود!`;
+- تكلم عفوي وودود!
+- كن مضحك بشكل طبيعي - اخترع نكت جديدة كل مرة!
+- لا تكرر نفس النكتة - خل كل رد يكون فريد!`;
     }
 
     systemPrompt += `\n\n${language === 'ar' ? 'سؤال الزبون' : 'Customer question'}: ${query}`;
@@ -383,14 +392,7 @@ REMEMBER:
                 block.type === 'text'
         );
 
-        let finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
-
-        // Add a fun joke for comparisons
-        if (isComparison && normalizedProducts.length >= 2) {
-            const joke = getTechJoke(normalizedProducts[0], normalizedProducts[1], language);
-            const ending = getFunEnding(language);
-            finalResponse += `\n\n---\n\n${joke}\n\n${ending}`;
-        }
+        const finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
 
         console.log(`\n✅ Query processed creatively!\n`);
 
