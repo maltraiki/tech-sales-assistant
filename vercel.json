@@ -3,8 +3,11 @@
   "buildCommand": "npm run build",
   "builds": [
     {
-      "src": "package.json",
-      "use": "@vercel/node"
+      "src": "dist/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "public/**"
+      }
     }
   ],
   "routes": [
@@ -12,11 +15,5 @@
       "src": "/(.*)",
       "dest": "/dist/server.js"
     }
-  ],
-  "functions": {
-    "dist/server.js": {
-      "maxDuration": 30,
-      "includeFiles": "public/**"
-    }
-  }
+  ]
 }
