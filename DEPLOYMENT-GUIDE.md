@@ -7,6 +7,12 @@
    - [Vercel](https://vercel.com)
    - [Supabase](https://supabase.com) (for database)
 
+2. Required API Keys:
+   - **Anthropic API Key** (Required) - Get from [console.anthropic.com](https://console.anthropic.com)
+   - **Serper API Key** (Required for product images) - Your current key: `6d80dae95b04d40930ae6ca4d8e625f40e72d8fb`
+     - Or get your own at [serper.dev](https://serper.dev) - Free tier: 2,500 searches/month
+   - **Supabase Credentials** (For saving conversations) - From your Supabase project settings
+
 ### Step 1: Set up Supabase Database
 
 1. Create a new Supabase project
@@ -36,10 +42,13 @@ vercel
    - Add these variables:
 ```
 ANTHROPIC_API_KEY=your_anthropic_key
-SERPER_API_KEY=your_serper_key
+SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+   **Note**: The SERPER_API_KEY provided (6d80dae95b04d40930ae6ca4d8e625f40e72d8fb) is the one you're currently using.
+   If you need your own key, sign up at [serper.dev](https://serper.dev) for free (2,500 searches/month).
 
 5. Redeploy to apply environment variables:
 ```bash
@@ -71,10 +80,20 @@ conversations
 
 ## 🔧 Local Development with Database
 
-1. Update `.env` file with your Supabase credentials:
+1. Update `.env` file with all required credentials:
 ```env
+# Claude AI (Required)
+ANTHROPIC_API_KEY=your_anthropic_key
+
+# Serper API for product images (Required)
+SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
+
+# Supabase Database (Optional but recommended)
 SUPABASE_URL=your_supabase_project_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Server Port (Optional - defaults to 3000)
+PORT=3002
 ```
 
 2. Run the development server:
