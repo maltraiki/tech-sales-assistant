@@ -82,17 +82,19 @@ export async function processQuery(query: string, language: string = 'en'): Prom
             // Try to get image from Serper API first, fallback to local database
             productImage = await getProductImage(detectedProduct);
             if (!productImage) {
-                productImage = findProductImage(query);  // Use full query for better matching
+                // Don't use hardcoded images
+                // productImage = findProductImage(query);  // Use full query for better matching
             }
 
             // For comparisons, collect multiple product images
             if (normalizedProducts.length > 1) {
-                for (const product of normalizedProducts) {
-                    const img = findProductImage(product);
-                    if (img && img !== 'https://via.placeholder.com/400x400.png?text=Tech+Product') {
-                        productImages.push(img);
-                    }
-                }
+                // Don't use findProductImage - rely on Serper API only
+                // for (const product of normalizedProducts) {
+                //     const img = findProductImage(product);
+                //     if (img && img !== 'https://via.placeholder.com/400x400.png?text=Tech+Product') {
+                //         productImages.push(img);
+                //     }
+                // }
                 // Use first product image as main image
                 if (productImages.length > 0) {
                     productImage = productImages[0];
@@ -106,11 +108,19 @@ export async function processQuery(query: string, language: string = 'en'): Prom
                                    query.toLowerCase().includes('compare');
 
                 if (isComparison) {
-                    // Get links for each product and combine
+                    // Get links for each product separately
                     for (const product of normalizedProducts) {
                         const directLinks = getDirectProductLinks(product, language);
                         if (directLinks.length > 0) {
-                            shoppingLinks = shoppingLinks.concat(directLinks.slice(0, 2)); // Take top 2 stores per product
+                            // Add all links for each product with proper product name
+                            shoppingLinks = shoppingLinks.concat(directLinks.map(link => ({
+                                ...link,
+                                productName: product
+                            })));
+                        } else {
+                            // Fallback to general shopping links for this product
+                            const generalLinks = await getShoppingLinks(product, language);
+                            shoppingLinks = shoppingLinks.concat(generalLinks.slice(0, 4));
                         }
                     }
                 }

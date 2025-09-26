@@ -1,30 +1,5 @@
-export const productImages: Record<string, string> = {
-    // iPhones
-    "iphone 16 pro max": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-max-titanium-select?wid=400",
-    "iphone 16 pro": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-pro-titanium-select?wid=400",
-    "iphone 16": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-16-blue-select?wid=400",
-    "iphone 15 pro max": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pro-max-titanium-select?wid=400",
-    "iphone 15": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-pink-select?wid=400",
-
-    // Samsung
-    "samsung galaxy s24 ultra": "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-s928-sm-s928bztvxsp-thumb-539305459?$344_344_PNG$",
-    "samsung galaxy s24": "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-s921-sm-s921blbcxsp-thumb-539305347?$344_344_PNG$",
-    "galaxy s24 ultra": "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-s928-sm-s928bztvxsp-thumb-539305459?$344_344_PNG$",
-    "galaxy s24": "https://images.samsung.com/is/image/samsung/p6pim/sg/2401/gallery/sg-galaxy-s24-s921-sm-s921blbcxsp-thumb-539305347?$344_344_PNG$",
-
-    // Google Pixel
-    "google pixel 9 pro": "https://lh3.googleusercontent.com/T68tJKOncdn_CTsEZGGPRtN3M1DhZmZOiVfhzo2GBVR6PNMJ9OYoFJJhSvZiKKTzCA3yx7Z_3oHMkW5hG5mZBCbT=rw-e365-w400",
-    "google pixel 9": "https://lh3.googleusercontent.com/a3U6QZHNjxMCF2sid6XYtByPEh_5gYQM1ympLMXqf-3S5F8IQNhLBpY-8PcvY-8thfk-fCv5aSJqZ3lX5Nh0Bg=rw-e365-w400",
-    "pixel 9 pro": "https://lh3.googleusercontent.com/T68tJKOncdn_CTsEZGGPRtN3M1DhZmZOiVfhzo2GBVR6PNMJ9OYoFJJhSvZiKKTzCA3yx7Z_3oHMkW5hG5mZBCbT=rw-e365-w400",
-    "pixel 9": "https://lh3.googleusercontent.com/a3U6QZHNjxMCF2sid6XYtByPEh_5gYQM1ympLMXqf-3S5F8IQNhLBpY-8PcvY-8thfk-fCv5aSJqZ3lX5Nh0Bg=rw-e365-w400",
-
-    // OnePlus
-    "oneplus 12": "https://image01.oneplus.net/media/202401/16/8e97ca3f8f3d43c1a90ae8e9e4e4e0f9.png",
-    "oneplus open": "https://image01.oneplus.net/media/202310/11/92f2ee3c1c6e48e5af91e0e6e1e9e0a1.png",
-
-    // Default
-    "default": "https://via.placeholder.com/400x400.png?text=Tech+Product"
-};
+// No hardcoded images - all images fetched dynamically from Serper API
+export const productImages: Record<string, string> = {};
 
 export const productSpecs: Record<string, any> = {
     "iphone 16 pro max": {
@@ -56,29 +31,9 @@ export const productSpecs: Record<string, any> = {
     }
 };
 
-export function findProductImage(query: string): string {
-    const lowerQuery = query.toLowerCase();
-
-    // Check for exact matches first
-    for (const [key, url] of Object.entries(productImages)) {
-        if (lowerQuery.includes(key)) {
-            return url;
-        }
-    }
-
-    // Check for partial matches
-    const keywords = ["iphone", "samsung", "galaxy", "pixel", "oneplus"];
-    for (const keyword of keywords) {
-        if (lowerQuery.includes(keyword)) {
-            for (const [key, url] of Object.entries(productImages)) {
-                if (key.includes(keyword)) {
-                    return url;
-                }
-            }
-        }
-    }
-
-    return productImages.default;
+export function findProductImage(query: string): string | null {
+    // Return null to force Serper API to fetch real images
+    return null;
 }
 
 export function getProductSpecs(productName: string): any {
