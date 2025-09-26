@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { processQuery } from './services/claude-creative.js';
 import { SearchRequest } from './types.js';
+import { saveConversation, getRecentConversations, getConversationStats } from './services/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,11 +37,52 @@ app.post('/search', async (req: Request<{}, {}, SearchRequest>, res: Response) =
 
     try {
         const result = await processQuery(query, language);
+
+        // Save conversation to database
+        await saveConversation({
+            query,
+            response: result.response,
+            language,
+            image_url: result.image || undefined,
+            prices: result.prices,
+            user_ip: req.ip,
+            user_agent: req.headers['user-agent']
+        });
+
         res.json(result);
     } catch (error) {
         console.error('❌ Server error:', error);
         res.status(500).json({
             error: 'An error occurred processing your request',
+            details: (error as Error).message
+        });
+    }
+});
+
+// Get conversation history
+app.get('/api/history', async (req: Request, res: Response) => {
+    try {
+        const limit = parseInt(req.query.limit as string) || 10;
+        const conversations = await getRecentConversations(limit);
+        res.json(conversations);
+    } catch (error) {
+        console.error('❌ History error:', error);
+        res.status(500).json({
+            error: 'Failed to fetch conversation history',
+            details: (error as Error).message
+        });
+    }
+});
+
+// Get conversation statistics
+app.get('/api/stats', async (req: Request, res: Response) => {
+    try {
+        const stats = await getConversationStats();
+        res.json(stats);
+    } catch (error) {
+        console.error('❌ Stats error:', error);
+        res.status(500).json({
+            error: 'Failed to fetch statistics',
             details: (error as Error).message
         });
     }

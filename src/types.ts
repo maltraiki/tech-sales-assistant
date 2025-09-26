@@ -2,7 +2,7 @@ export interface Tool {
     name: string;
     description: string;
     input_schema: {
-        type: string;
+        type: 'object';
         properties: Record<string, any>;
         required: string[];
     };

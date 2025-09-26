@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Buddy - Your Friendly Tech Sales Assistant 🚀</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans Arabic', Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        body.rtl {
+            direction: rtl;
+        }
+
+        .main-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .language-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        body.rtl .language-toggle {
+            right: auto;
+            left: 20px;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid transparent;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .lang-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            flex: 1;
+            padding: 40px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .history-panel {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 350px;
+            padding: 20px;
+            animation: slideUp 0.5s ease-out 0.1s;
+            animation-fill-mode: both;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .result {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .product-image {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .product-images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .product-images-grid img {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .response-text {
+            color: #333;
+            line-height: 1.8;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+
+        .price-comparison {
+            margin: 30px 0;
+        }
+
+        .price-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .price-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .price-card:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .store-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            font-size: 24px;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .shop-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .shop-link:hover {
+            transform: translateY(-2px);
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .quick-examples {
+            margin-top: 20px;
+        }
+
+        .examples-title {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .example-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            background: #f7fafc;
+            color: #667eea;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* History Panel Styles */
+        .history-title {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stats-container {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-item {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background: #e2e8f0;
+            transform: translateX(5px);
+        }
+
+        body.rtl .history-item:hover {
+            transform: translateX(-5px);
+        }
+
+        .history-query {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 5px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .history-lang {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-wrapper {
+                flex-direction: column;
+            }
+
+            .history-panel {
+                width: 100%;
+                max-height: 300px;
+                order: 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-toggle">
+        <button class="lang-btn active" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" onclick="setLanguage('ar')">العربية</button>
+    </div>
+
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="header">
+                <h1>
+                    <span class="title-text">Tech Buddy</span>
+                    <span>🤖</span>
+                </h1>
+                <p class="subtitle">Your friendly tech sales expert - Ask me anything about phones!</p>
+            </div>
+
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Ask about any phone... (e.g., 'Compare iPhone 16 vs Samsung S24')">
+                    <button onclick="search()" id="searchBtn">Ask Me! 🚀</button>
+                </div>
+
+                <div class="quick-examples">
+                    <p class="examples-title">Try these:</p>
+                    <button class="example-btn" onclick="setExample('What\'s the latest iPhone?')">Latest iPhone? 📱</button>
+                    <button class="example-btn" onclick="setExample('Compare iPhone 16 Pro Max vs Samsung S24 Ultra')">iPhone vs Samsung 🥊</button>
+                    <button class="example-btn" onclick="setExample('Best camera phone under 4000 SAR')">Best Camera 📸</button>
+                    <button class="example-btn" onclick="setExample('Is Google Pixel 9 Pro worth it?')">Pixel Worth It? 🤔</button>
+                </div>
+            </div>
+
+            <div id="loadingDiv" class="loading" style="display: none;">
+                🤔 Let me think about that...
+            </div>
+
+            <div id="resultDiv"></div>
+        </div>
+
+        <div class="history-panel">
+            <h3 class="history-title">
+                <span>📜</span>
+                <span class="history-title-text">Recent Conversations</span>
+            </h3>
+
+            <div class="stats-container">
+                <div class="stat-item">
+                    <span class="stat-label">Total Queries:</span>
+                    <span class="stat-value" id="totalQueries">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">English:</span>
+                    <span class="stat-value" id="englishQueries">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Arabic:</span>
+                    <span class="stat-value" id="arabicQueries">0</span>
+                </div>
+            </div>
+
+            <div class="history-list" id="historyList">
+                <!-- History items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'en';
+
+        const translations = {
+            en: {
+                title: 'Tech Buddy',
+                subtitle: 'Your friendly tech sales expert - Ask me anything about phones!',
+                placeholder: "Ask about any phone... (e.g., 'Compare iPhone 16 vs Samsung S24')",
+                button: 'Ask Me! 🚀',
+                loading: '🤔 Let me think about that...',
+                examples: 'Try these:',
+                whereTitle: '🛍️ Where to Buy in Saudi Arabia',
+                shopNow: 'Shop Now →',
+                historyTitle: 'Recent Conversations',
+                totalQueries: 'Total Queries:',
+                englishQueries: 'English:',
+                arabicQueries: 'Arabic:'
+            },
+            ar: {
+                title: 'صديقك التقني',
+                subtitle: 'خبيرك في الجوالات - اسألني أي شيء عن أي جوال!',
+                placeholder: "اسأل عن أي جوال... (مثلاً: 'قارن بين آيفون 16 وسامسونج S24')",
+                button: 'اسألني! 🚀',
+                loading: '🤔 خلني أفكر شوي...',
+                examples: 'جرب هذي:',
+                whereTitle: '🛍️ وين تشتريه في السعودية',
+                shopNow: 'تسوق الآن ←',
+                historyTitle: 'المحادثات الأخيرة',
+                totalQueries: 'إجمالي الاستفسارات:',
+                englishQueries: 'بالإنجليزي:',
+                arabicQueries: 'بالعربي:'
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const body = document.body;
+
+            if (lang === 'ar') {
+                body.classList.add('rtl');
+            } else {
+                body.classList.remove('rtl');
+            }
+
+            // Update active button
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update UI text
+            const t = translations[lang];
+            document.querySelector('.title-text').textContent = t.title;
+            document.querySelector('.subtitle').textContent = t.subtitle;
+            document.getElementById('searchInput').placeholder = t.placeholder;
+            document.getElementById('searchBtn').textContent = t.button;
+            document.querySelector('.examples-title').textContent = t.examples;
+            document.querySelector('.history-title-text').textContent = t.historyTitle;
+
+            // Update stats labels
+            document.querySelectorAll('.stat-label')[0].textContent = t.totalQueries;
+            document.querySelectorAll('.stat-label')[1].textContent = t.englishQueries;
+            document.querySelectorAll('.stat-label')[2].textContent = t.arabicQueries;
+
+            // Update loading text if visible
+            const loadingDiv = document.getElementById('loadingDiv');
+            if (loadingDiv.style.display !== 'none') {
+                loadingDiv.textContent = t.loading;
+            }
+        }
+
+        function setExample(text) {
+            document.getElementById('searchInput').value = text;
+            search();
+        }
+
+        async function search() {
+            const query = document.getElementById('searchInput').value;
+            if (!query) return;
+
+            const loadingDiv = document.getElementById('loadingDiv');
+            const resultDiv = document.getElementById('resultDiv');
+            const searchBtn = document.getElementById('searchBtn');
+            const t = translations[currentLanguage];
+
+            loadingDiv.style.display = 'block';
+            loadingDiv.textContent = t.loading;
+            resultDiv.innerHTML = '';
+            searchBtn.disabled = true;
+
+            try {
+                const response = await fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        language: currentLanguage
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    resultDiv.innerHTML = `<div class="error">❌ ${data.error}</div>`;
+                } else {
+                    let resultHTML = '<div class="result">';
+
+                    if (data.image) {
+                        resultHTML += `<img src="${data.image}" alt="Product" class="product-image">`;
+                    }
+
+                    if (data.images && data.images.length > 1) {
+                        resultHTML += '<div class="product-images-grid">';
+                        data.images.forEach(img => {
+                            resultHTML += `<img src="${img}" alt="Product">`;
+                        });
+                        resultHTML += '</div>';
+                    }
+
+                    resultHTML += `<div class="response-text">${data.response}</div>`;
+
+                    if (data.prices && data.prices.length > 0) {
+                        resultHTML += `
+                            <div class="price-comparison">
+                                <h3 class="price-title">
+                                    <span>🛍️</span>
+                                    <span>${t.whereTitle}</span>
+                                </h3>
+                                <div class="price-grid">
+                        `;
+
+                        data.prices.forEach(price => {
+                            resultHTML += `
+                                <div class="price-card">
+                                    <div class="store-name">${price.store}</div>
+                                    <div class="price">${price.price}</div>
+                                    <a href="${price.link}" target="_blank" class="shop-link">${t.shopNow}</a>
+                                </div>
+                            `;
+                        });
+
+                        resultHTML += `
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    resultHTML += '</div>';
+                    resultDiv.innerHTML = resultHTML;
+
+                    // Refresh history after successful query
+                    loadHistory();
+                    loadStats();
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Network error. Please try again.</div>`;
+            } finally {
+                loadingDiv.style.display = 'none';
+                searchBtn.disabled = false;
+            }
+        }
+
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history?limit=20');
+                const history = await response.json();
+
+                const historyList = document.getElementById('historyList');
+                if (history.length === 0) {
+                    historyList.innerHTML = '<p style="color: #999; text-align: center; font-size: 14px;">No conversations yet</p>';
+                } else {
+                    historyList.innerHTML = history.map(item => {
+                        const date = new Date(item.created_at);
+                        const timeAgo = getTimeAgo(date);
+                        return `
+                            <div class="history-item" onclick="loadConversation('${encodeURIComponent(item.query)}', '${item.language}')">
+                                <div class="history-query">
+                                    ${item.query}
+                                    <span class="history-lang">${item.language.toUpperCase()}</span>
+                                </div>
+                                <div class="history-time">${timeAgo}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load history:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+
+                document.getElementById('totalQueries').textContent = stats.total || 0;
+                document.getElementById('englishQueries').textContent = stats.english || 0;
+                document.getElementById('arabicQueries').textContent = stats.arabic || 0;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        function loadConversation(query, language) {
+            const decodedQuery = decodeURIComponent(query);
+            document.getElementById('searchInput').value = decodedQuery;
+
+            // Set language if different
+            if (language !== currentLanguage) {
+                const langBtn = document.querySelector(`.lang-btn:nth-child(${language === 'en' ? '1' : '2'})`);
+                langBtn.click();
+            }
+
+            search();
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return interval === 1 ? `1 ${unit} ago` : `${interval} ${unit}s ago`;
+                }
+            }
+            return 'Just now';
+        }
+
+        // Handle Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                search();
+            }
+        });
+
+        // Load initial data
+        loadHistory();
+        loadStats();
+
+        // Refresh history every 30 seconds
+        setInterval(() => {
+            loadHistory();
+            loadStats();
+        }, 30000);
+    </script>
+</body>
+</html>
