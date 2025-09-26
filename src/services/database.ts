@@ -14,13 +14,22 @@ export interface Conversation {
 }
 
 // Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || '';
+const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'placeholder-key';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// Only create client if we have real credentials
+const hasValidCredentials = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseKey !== 'placeholder-key';
+export const supabase = hasValidCredentials
+    ? createClient(supabaseUrl, supabaseKey)
+    : null;
 
 // Save conversation to database
 export async function saveConversation(conversation: Conversation) {
+    if (!supabase) {
+        console.log('Supabase not configured - skipping save');
+        return null;
+    }
+
     try {
         const { data, error } = await supabase
             .from('conversations')
@@ -41,6 +50,11 @@ export async function saveConversation(conversation: Conversation) {
 
 // Get recent conversations
 export async function getRecentConversations(limit: number = 10) {
+    if (!supabase) {
+        console.log('Supabase not configured - returning empty array');
+        return [];
+    }
+
     try {
         const { data, error } = await supabase
             .from('conversations')
@@ -62,6 +76,11 @@ export async function getRecentConversations(limit: number = 10) {
 
 // Get conversation statistics
 export async function getConversationStats() {
+    if (!supabase) {
+        console.log('Supabase not configured - returning default stats');
+        return { total: 0, arabic: 0, english: 0 };
+    }
+
     try {
         const { data: totalCount } = await supabase
             .from('conversations')

@@ -343,10 +343,23 @@ Keep it conversational and fun! This is a chat with your tech-obsessed bestie! �
     } catch (error) {
         console.error('❌ Processing error:', error);
 
+        // Extract error message for better debugging
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const isApiKeyError = errorMessage.includes('authentication') || errorMessage.includes('API key');
+
+        let userMessage = '';
+        if (isApiKeyError) {
+            userMessage = language === 'ar'
+                ? "⚠️ خطأ في مفتاح API - تأكد من إعداد ANTHROPIC_API_KEY في Vercel"
+                : "⚠️ API key error - Please check ANTHROPIC_API_KEY is set in Vercel environment variables";
+        } else {
+            userMessage = language === 'ar'
+                ? `عذراً! حصل خطأ: ${errorMessage}`
+                : `Oops! Error occurred: ${errorMessage}`;
+        }
+
         return {
-            response: language === 'ar'
-                ? "عذراً! 😅 حصل خطأ بسيط. هل يمكنك السؤال مرة أخرى؟"
-                : "Whoops! 😅 Something went wrong on my end. Mind trying that again? I promise I'm usually better at this!",
+            response: userMessage,
             image: null,
             prices: []
         };
