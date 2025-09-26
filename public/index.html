@@ -636,16 +636,26 @@
             responseDiv.classList.remove('active');
 
             try {
-                const response = await fetch('http://localhost:3002/search', {
+                const response = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, language: currentLang })
                 });
 
+                if (!response.ok) {
+                    console.error('Response not OK:', response.status);
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    responseDiv.innerHTML = `<div class="error">⚠️ Server error (${response.status}): ${errorText || 'Please try again'}</div>`;
+                    responseDiv.classList.add('active');
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.error) {
-                    responseDiv.innerHTML = `<div class="error">😅 ${data.error}</div>`;
+                    console.error('API error:', data.error);
+                    responseDiv.innerHTML = `<div class="error">⚠️ ${data.error}</div>`;
                 } else {
                     let html = '';
 
@@ -689,7 +699,9 @@
 
                 responseDiv.classList.add('active');
             } catch (error) {
-                responseDiv.innerHTML = `<div class="error">Oops! 😅 Something went wonky. Mind trying again?</div>`;
+                console.error('Fetch error:', error);
+                const errorMessage = error.message || 'Unknown error occurred';
+                responseDiv.innerHTML = `<div class="error">😰 Connection error: ${errorMessage}<br><br>Please check if the server is running and try again.</div>`;
                 responseDiv.classList.add('active');
             } finally {
                 btn.disabled = false;
