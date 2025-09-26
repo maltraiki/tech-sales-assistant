@@ -7,8 +7,25 @@ import { findProductImage } from '../data/products.js';
 export async function processQuery(query: string, language: string = 'en'): Promise<SearchResponse> {
     console.log(`\n🤖 Processing creative query: "${query}" in ${language}\n`);
 
+    // Debug API key loading
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('API Key exists:', !!apiKey);
+    console.log('API Key length:', apiKey ? apiKey.length : 0);
+    console.log('First 10 chars:', apiKey ? apiKey.substring(0, 10) + '...' : 'NO KEY');
+
+    if (!apiKey || apiKey === '') {
+        console.error('ANTHROPIC_API_KEY is not set!');
+        return {
+            response: language === 'ar'
+                ? "⚠️ خطأ: مفتاح API غير موجود. تحقق من إعدادات Vercel."
+                : "⚠️ Error: ANTHROPIC_API_KEY is not set. Please check Vercel environment variables.",
+            image: null,
+            prices: []
+        };
+    }
+
     const anthropic = new Anthropic({
-        apiKey: process.env.ANTHROPIC_API_KEY || ''
+        apiKey: apiKey
     });
 
     // Try to get real product image from search

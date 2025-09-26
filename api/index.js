@@ -10,7 +10,15 @@ import { saveConversation, getRecentConversations, getConversationStats } from '
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Load environment variables
 dotenv.config();
+
+// Debug environment variables in Vercel
+console.log('Environment check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('ANTHROPIC_API_KEY exists:', !!process.env.ANTHROPIC_API_KEY);
+console.log('SERPER_API_KEY exists:', !!process.env.SERPER_API_KEY);
+console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
 
 const app = express();
 
