@@ -3,6 +3,7 @@ import { SearchResponse } from '../types.js';
 import { getProductImage, comparePrices } from './serper.js';
 import { getDirectProductLinks, getShoppingLinks } from './shopping-links.js';
 import { findProductImage } from '../data/products.js';
+import { getTechJoke, getFunEnding } from '../utils/tech-jokes.js';
 
 export async function processQuery(query: string, language: string = 'en'): Promise<SearchResponse> {
     console.log(`\n🤖 Processing creative query: "${query}" in ${language}\n`);
@@ -170,7 +171,7 @@ export async function processQuery(query: string, language: string = 'en'): Prom
 
 اوووه تبي تقارن؟ هذا بيكون مهرجان حمااااس! 🔥
 
-ابدأ ب: "ياللههه! نخليهم وجه لوجه ونشوف مين البطل! 🥊"
+ابدأ ب: "يااا سلام! نخليهم وجه لوجه ونشوف مين البطل! 🥊"
 
 📱 **الشاشة والعرض**
 - حجم الشاشة بالإنش والدقة
@@ -207,7 +208,7 @@ export async function processQuery(query: string, language: string = 'en'): Prom
         } else {
             systemPrompt += `
 
-يالله بعطيك القصة كاملة! بقولك كل شي رهييييب عن هذا الجهاز:
+تفضل! بعطيك القصة كاملة! بقولك كل شي رهييييب عن هذا الجهاز:
 
 📱 **المواصفات التقنية**
 - الشاشة: الحجم، الدقة، معدل التحديث، السطوع
@@ -382,7 +383,14 @@ REMEMBER:
                 block.type === 'text'
         );
 
-        const finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
+        let finalResponse = textBlock?.text || 'Hmm, I had a little hiccup there! Mind asking again? 😅';
+
+        // Add a fun joke for comparisons
+        if (isComparison && normalizedProducts.length >= 2) {
+            const joke = getTechJoke(normalizedProducts[0], normalizedProducts[1], language);
+            const ending = getFunEnding(language);
+            finalResponse += `\n\n---\n\n${joke}\n\n${ending}`;
+        }
 
         console.log(`\n✅ Query processed creatively!\n`);
 
