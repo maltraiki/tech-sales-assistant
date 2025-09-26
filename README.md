@@ -2,6 +2,8 @@
 
 AI-powered bilingual tech sales assistant that helps users compare phones, find deals, and get personalized recommendations. Built with TypeScript, Express, and Claude AI.
 
+_Last deployment: 2025-09-26_
+
 ## Features ✨
 
 - 🤖 Powered by Claude AI with conversational personality
