@@ -2,6 +2,38 @@
 
 ## 🚀 Deploying to Vercel
 
+### Quick Setup with Vercel Integrations
+
+If you're using Vercel's marketplace integrations, deployment is super simple:
+
+1. **Deploy the project to Vercel:**
+   ```bash
+   vercel
+   ```
+
+2. **Add Supabase from Vercel Marketplace:**
+   - Go to your Vercel project → Integrations
+   - Add "Supabase" (automatically sets SUPABASE_URL and SUPABASE_ANON_KEY)
+
+3. **Run the database schema:**
+   - Open your Supabase dashboard (link in Vercel integration)
+   - Go to SQL Editor
+   - Run the contents of `supabase-schema.sql`
+
+4. **Add remaining environment variables in Vercel:**
+   ```
+   ANTHROPIC_API_KEY=your_anthropic_key
+   SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
+   ```
+
+5. **Redeploy:** `vercel --prod`
+
+That's it! Your app is live with database support! 🎉
+
+---
+
+### Detailed Setup (Manual)
+
 ### Prerequisites
 1. Create accounts at:
    - [Vercel](https://vercel.com)
@@ -15,7 +47,14 @@
 
 ### Step 1: Set up Supabase Database
 
-1. Create a new Supabase project
+#### Option A: Using Vercel Integration (Recommended)
+1. Install Supabase from Vercel Marketplace
+2. It will automatically create a project and set environment variables
+3. Go to your Supabase dashboard → SQL Editor
+4. Run the schema from `supabase-schema.sql`
+
+#### Option B: Manual Setup
+1. Create a new Supabase project at [supabase.com](https://supabase.com)
 2. Go to SQL Editor and run the schema from `supabase-schema.sql`
 3. Copy your project URL and anon key from Settings > API
 
@@ -37,18 +76,25 @@ vercel
 ```
 
 4. Set environment variables in Vercel Dashboard:
-   - Go to your project settings
-   - Navigate to Environment Variables
-   - Add these variables:
-```
-ANTHROPIC_API_KEY=your_anthropic_key
-SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
-SUPABASE_URL=your_supabase_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+   - Go to your project settings → Environment Variables
 
-   **Note**: The SERPER_API_KEY provided (6d80dae95b04d40930ae6ca4d8e625f40e72d8fb) is the one you're currently using.
-   If you need your own key, sign up at [serper.dev](https://serper.dev) for free (2,500 searches/month).
+   **If you used Vercel Supabase Integration:**
+   - `SUPABASE_URL` and `SUPABASE_ANON_KEY` are already set automatically ✅
+   - Only add these two:
+   ```
+   ANTHROPIC_API_KEY=your_anthropic_key
+   SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
+   ```
+
+   **If setting up manually, add all four:**
+   ```
+   ANTHROPIC_API_KEY=your_anthropic_key
+   SERPER_API_KEY=6d80dae95b04d40930ae6ca4d8e625f40e72d8fb
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+   **Note**: The SERPER_API_KEY provided is your current working key. Get your own at [serper.dev](https://serper.dev) if needed.
 
 5. Redeploy to apply environment variables:
 ```bash
