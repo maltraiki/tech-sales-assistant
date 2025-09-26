@@ -379,7 +379,7 @@ REMEMBER:
             response: finalResponse,
             image: productImage,
             images: productImages.length > 0 ? productImages : undefined,
-            prices: shoppingLinks
+            prices: priceComparison
         };
 
     } catch (error) {

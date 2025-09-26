@@ -385,6 +385,15 @@
             font-weight: 600;
         }
 
+        .sales-text h2,
+        .sales-text h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+        }
+
         .error {
             background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
             color: white;
@@ -585,6 +594,9 @@
         }
 
         function formatResponse(text) {
+            // Convert section headers with emoji to styled headings
+            text = text.replace(/^([📊📸🔬🛠️💡⚡🔋💰🏆🔧📱].+?\*\*[A-Z\s]+\*\*)/gm, '<h3>$1</h3>');
+
             // Convert markdown-style bold to HTML
             text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
