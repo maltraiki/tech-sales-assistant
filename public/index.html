@@ -39,6 +39,24 @@
             left: 20px;
         }
 
+        /* Better contrast for Arabic mode */
+        body.rtl .example-query {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+
+        body.rtl .example-query:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        body.rtl .sales-text {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+        }
+
         .lang-btn {
             padding: 8px 16px;
             background: rgba(255, 255, 255, 0.2);
@@ -582,7 +600,7 @@
             // Update button text
             const searchBtn = document.getElementById('searchBtn').querySelector('span:first-child');
             if (lang === 'ar') {
-                searchBtn.textContent = 'هيا بنا!';
+                searchBtn.textContent = 'انطلقنا! 🚀';
             } else {
                 searchBtn.textContent = "Let's Go!";
             }
@@ -689,20 +707,25 @@
 
                     if (data.prices && data.prices.length > 0) {
                         html += '<div class="price-comparison">';
-                        html += '<h3>🛍️ Where to Buy in Saudi Arabia</h3>';
+                        const buyHeaderText = currentLang === 'ar'
+                            ? '<h3>🛍️ وين ينباع في السعودية</h3>'
+                            : '<h3>🛍️ Where to Buy in Saudi Arabia</h3>';
+                        html += buyHeaderText;
                         data.prices.forEach(price => {
                             const linkHtml = price.link
                                 ? `<a href="${price.link}" target="_blank" class="price-item-link">`
                                 : '<div class="price-item">';
                             const closingTag = price.link ? '</a>' : '</div>';
 
+                            const shopNowText = currentLang === 'ar' ? 'تسوق الآن ←' : 'Shop Now →';
+                            const productName = price.productName || document.getElementById('searchInput').value || 'Product';
                             html += `
                                 ${linkHtml}
                                     <div class="store-info">
-                                        <span class="store-name">${price.store}</span>
+                                        <span class="store-name">${price.store} - ${productName}</span>
                                         <span class="price">${price.price}</span>
                                     </div>
-                                    ${price.link ? '<span class="shop-now">Shop Now →</span>' : ''}
+                                    ${price.link ? `<span class="shop-now">${shopNowText}</span>` : ''}
                                 ${closingTag}
                             `;
                         });

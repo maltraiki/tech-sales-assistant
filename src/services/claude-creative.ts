@@ -130,7 +130,8 @@ export async function processQuery(query: string, language: string = 'en'): Prom
             priceComparison = shoppingLinks.map(link => ({
                 store: link.store,
                 price: link.price || 'Check Website',
-                link: link.url
+                link: link.url,
+                productName: link.productName || detectedProduct
             }));
         } catch (error) {
             console.log('Could not fetch product data, continuing without it');

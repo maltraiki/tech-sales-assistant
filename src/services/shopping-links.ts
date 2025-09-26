@@ -3,6 +3,7 @@ interface ShoppingLink {
     url: string;
     price?: string;
     available?: boolean;
+    productName?: string;
 }
 
 export async function getShoppingLinks(productName: string, language: string = 'en'): Promise<ShoppingLink[]> {
@@ -26,7 +27,8 @@ export async function getShoppingLinks(productName: string, language: string = '
     links.push({
         store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
         url: `https://www.amazon.sa/s?k=${searchTerms.amazon}${amazonAffiliateParams}`,
-        available: true
+        available: true,
+        productName: productName
     });
 
     // Noon.com link
@@ -83,7 +85,8 @@ export function getDirectProductLinks(productName: string, language: string = 'e
                 store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
                 url: `https://www.amazon.sa/s?k=iphone+16+pro+max${amazonAffiliateParams}`,
                 price: language === 'ar' ? '٥،٣٩٩+ ريال' : 'SAR 5,399+',
-                available: true
+                available: true,
+                productName: 'iPhone 16 Pro Max'
             },
             {
                 store: language === 'ar' ? 'نون' : 'Noon.com',
