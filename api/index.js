@@ -19,6 +19,8 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('ANTHROPIC_API_KEY exists:', !!process.env.ANTHROPIC_API_KEY);
 console.log('SERPER_API_KEY exists:', !!process.env.SERPER_API_KEY);
 console.log('SUPABASE_URL exists:', !!process.env.SUPABASE_URL);
+console.log('SUPABASE_ANON_KEY exists:', !!process.env.SUPABASE_ANON_KEY);
+console.log('SUPABASE_URL value:', process.env.SUPABASE_URL ? 'Set' : 'Not set');
 
 const app = express();
 
@@ -47,15 +49,20 @@ app.post('/search', async (req, res) => {
         const result = await processQuery(query, language);
 
         // Save conversation to database
-        await saveConversation({
-            query,
-            response: result.response,
-            language,
-            image_url: result.image || undefined,
-            prices: result.prices,
-            user_ip: req.ip,
-            user_agent: req.headers['user-agent']
-        });
+        try {
+            const saveResult = await saveConversation({
+                query,
+                response: result.response,
+                language,
+                image_url: result.image || undefined,
+                prices: result.prices,
+                user_ip: req.ip,
+                user_agent: req.headers['user-agent']
+            });
+            console.log('Database save result:', saveResult ? 'Success' : 'Failed');
+        } catch (dbError) {
+            console.error('Database save error:', dbError);
+        }
 
         res.json(result);
     } catch (error) {

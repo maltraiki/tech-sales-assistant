@@ -14,12 +14,16 @@ export interface Conversation {
 }
 
 // Initialize Supabase client
-const supabaseUrl = process.env.SUPABASE_URL || 'https://placeholder.supabase.co';
-const supabaseKey = process.env.SUPABASE_ANON_KEY || 'placeholder-key';
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+
+console.log('Supabase Init:', {
+    url: supabaseUrl ? 'Found' : 'Missing',
+    key: supabaseKey ? 'Found' : 'Missing'
+});
 
 // Only create client if we have real credentials
-const hasValidCredentials = supabaseUrl !== 'https://placeholder.supabase.co' && supabaseKey !== 'placeholder-key';
-export const supabase = hasValidCredentials
+export const supabase = (supabaseUrl && supabaseKey)
     ? createClient(supabaseUrl, supabaseKey)
     : null;
 
