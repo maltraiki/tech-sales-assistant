@@ -21,10 +21,11 @@ export async function getShoppingLinks(productName: string): Promise<ShoppingLin
         noon: encodeURIComponent(cleanProductName)
     };
 
-    // Amazon Saudi Arabia link
+    // Amazon Saudi Arabia link with affiliate parameters
+    const amazonAffiliateParams = '&linkCode=ll2&tag=mobily00-21&linkId=112a41b46657617b0afd9ddf27343051&language=en_AE&ref_=as_li_ss_tl';
     links.push({
         store: 'Amazon.sa',
-        url: `https://www.amazon.sa/s?k=${searchTerms.amazon}`,
+        url: `https://www.amazon.sa/s?k=${searchTerms.amazon}${amazonAffiliateParams}`,
         available: true
     });
 
@@ -72,12 +73,15 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
     const links: ShoppingLink[] = [];
     const lowerName = productName.toLowerCase();
 
+    // Amazon affiliate parameters
+    const amazonAffiliateParams = '&linkCode=ll2&tag=mobily00-21&linkId=112a41b46657617b0afd9ddf27343051&language=en_AE&ref_=as_li_ss_tl';
+
     // iPhone specific links
     if (lowerName.includes('iphone 16 pro max')) {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=iphone+16+pro+max',
+                url: `https://www.amazon.sa/s?k=iphone+16+pro+max${amazonAffiliateParams}`,
                 price: 'SAR 5,399+',
                 available: true
             },
@@ -104,7 +108,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=iphone+16',
+                url: `https://www.amazon.sa/s?k=iphone+16${amazonAffiliateParams}`,
                 price: 'SAR 3,399+',
                 available: true
             },
@@ -122,7 +126,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=samsung+galaxy+s24+ultra',
+                url: `https://www.amazon.sa/s?k=samsung+galaxy+s24+ultra${amazonAffiliateParams}`,
                 price: 'SAR 4,899+',
                 available: true
             },
@@ -143,7 +147,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=samsung+galaxy+s24',
+                url: `https://www.amazon.sa/s?k=samsung+galaxy+s24${amazonAffiliateParams}`,
                 price: 'SAR 3,199+',
                 available: true
             },
@@ -161,7 +165,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=google+pixel+9+pro',
+                url: `https://www.amazon.sa/s?k=google+pixel+9+pro${amazonAffiliateParams}`,
                 price: 'SAR 3,799+',
                 available: true
             },
@@ -176,7 +180,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=google+pixel+9',
+                url: `https://www.amazon.sa/s?k=google+pixel+9${amazonAffiliateParams}`,
                 price: 'SAR 2,999+',
                 available: true
             },
@@ -194,7 +198,7 @@ export function getDirectProductLinks(productName: string): ShoppingLink[] {
         links.push(
             {
                 store: 'Amazon.sa',
-                url: 'https://www.amazon.sa/s?k=oneplus+12',
+                url: `https://www.amazon.sa/s?k=oneplus+12${amazonAffiliateParams}`,
                 price: 'SAR 2,799+',
                 available: true
             },
