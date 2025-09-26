@@ -205,8 +205,7 @@ export async function processQuery(query: string, language: string = 'en'): Prom
 🏆 **التوصية النهائية**
 أفضل للاستخدامات المختلفة مع تبرير واضح
 
-😂 **نكتة تقنية مضحكة**
-اختتم بنكتة تقنية مضحكة وعفوية عن المقارنة - خليها جديدة وما تكررها أبد!`;
+في النهاية، خل ختامك مضحك وعفوي - أضف لمسة فكاهية طبيعية بدون ما تقول "هذي نكتة"`;
         } else {
             systemPrompt += `
 
@@ -302,8 +301,7 @@ Best for gaming: [Frame rates, thermal performance]
 Best for battery life: [Usage patterns]
 Best value proposition: [Price to performance ratio]
 
-😂 **TECH HUMOR TIME**
-End with a spontaneous, original tech joke about this comparison - make it fresh and funny every time!`;
+Wrap it up with something funny and spontaneous - be naturally humorous without announcing it`;
         } else {
             systemPrompt += `
 
@@ -354,8 +352,8 @@ REMEMBER:
 - Make tech FUN not boring!
 - Use emojis to show excitement! 🎉
 - Keep it casual and friendly!
-- Be spontaneously funny - create original jokes on the fly!
-- Never repeat the same joke - each response should be unique!`;
+- Let your personality shine through - be naturally entertaining
+- Keep things fresh and engaging throughout`;
     }
 
     if (language === 'ar') {
@@ -368,8 +366,8 @@ REMEMBER:
 - خل التقنية متعة مو ملل!
 - استخدم إيموجيز عشان نعبر عن الحماس! 🎉
 - تكلم عفوي وودود!
-- كن مضحك بشكل طبيعي - اخترع نكت جديدة كل مرة!
-- لا تكرر نفس النكتة - خل كل رد يكون فريد!`;
+- خل شخصيتك تطلع - كن مسلي بشكل طبيعي
+- حافظ على الحماس والمتعة طول الوقت!`;
     }
 
     systemPrompt += `\n\n${language === 'ar' ? 'سؤال الزبون' : 'Customer question'}: ${query}`;
