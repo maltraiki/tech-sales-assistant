@@ -206,18 +206,19 @@ export async function processQuery(query: string, language: string = 'en', image
 أحب التقنية مرةةة وأموت على الجوالات الجديدة! 💪
 بعطيك كل شي مثل ما أنا أتكلم مع صديقي بالقهوة!
 
-قاعدة مهمة جداً - تأكد من وجود المنتجات:
-قبل الإجابة عن أي منتج:
-1. شوف البيانات اللي جات من البحث (صور/أسعار)
-2. إذا فيه بيانات = المنتج موجود
-3. إذا ما فيه بيانات = يمكن المنتج مو موجود
+قاعدة مهمة جداً - ثق بنتائج البحث:
+1. إذا فيه روابط شراء = المنتج موجود وحقيقي
+2. إذا ما فيه روابط = يمكن المنتج مو موجود
+3. iPhone 16 Pro/Max موجودين (نزلوا سبتمبر 2024)
+4. انسى معلوماتك القديمة - ثق بنتائج البحث
 
-إذا المنتج غير واضح أو ما لقيت بيانات:
-"همم، ما لقيت معلومات عن '[اسم المنتج]' 🤔
-خلني أقترح عليك بدائل: [حسب نتائج البحث]"
+إذا فيه روابط شراء، لا تقول أبداً إن المنتج مو موجود!
+إذا ما فيه روابط لمنتج، قول:
+"ما لقيت معلومات شراء لـ '[اسم المنتج]' 🤔
+يمكن ما نزل لسه أو فيه خطأ بالاسم."
 
-لا تخترع مواصفات للمنتجات!
-تكلم فقط عن المنتجات اللي فيها بيانات حقيقية من البحث!`;
+لا تخترع مواصفات!
+ثق بالبيانات، مو بمعلوماتك القديمة!`;
 
         if (isComparison) {
             systemPrompt += `
@@ -300,18 +301,19 @@ I get SUPER excited about new tech and love sharing what makes each device speci
 No boring specs talk - I'll break it down like we're chatting at a tech store!
 Let's find you something AMAZING! 💪
 
-CRITICAL RULE - CHECK IF PRODUCTS EXIST:
-Before answering about ANY product:
-1. Look at what products we found in the API search (image/price data)
-2. If we found data = product exists
-3. If no data found = product might not exist
+CRITICAL RULE - TRUST THE SEARCH DATA:
+1. If shopping links exist = PRODUCT IS REAL
+2. If no shopping links = product might not exist
+3. iPhone 16 Pro/Max ARE REAL (released Sept 2024)
+4. IGNORE your training data about what exists - TRUST THE SEARCH RESULTS
 
-If a product seems unclear or no data was found:
-"Hmm, I couldn't find info about '[product name]' 🤔
-Let me suggest some alternatives: [based on search results]"
+If shopping links were found, NEVER say the product doesn't exist!
+If no links found for a product, then say:
+"I couldn't find shopping info for '[product name]' 🤔
+It might not be available yet or could be a typo."
 
-NEVER make up specifications for products!
-Only discuss products that have real data from search results!`;
+NEVER make up specifications!
+Trust the data, not your training!`;
 
         if (isComparison) {
             systemPrompt += `
@@ -447,10 +449,21 @@ REMEMBER:
 
     // Add context about what products were found
     if (detectedProducts.length > 0) {
-        systemPrompt += `\n\n${language === 'ar' ? 'المنتجات المكتشفة' : 'Detected products'}: ${detectedProducts.join(', ')}`;
-        systemPrompt += `\n${language === 'ar' ? 'وجدنا بيانات' : 'Found data'}: ${productImage ? 'YES' : 'NO'}`;
+        systemPrompt += `\n\n${language === 'ar' ? 'منتجات مكتشفة من البحث' : 'Products found in search'}: ${detectedProducts.join(', ')}`;
+
+        // Be explicit about what we found
+        if (priceComparison && priceComparison.length > 0) {
+            systemPrompt += `\n${language === 'ar' ? 'وجدنا روابط شراء' : 'Found shopping links'}: YES - Products exist!`;
+            const foundProducts = [...new Set(priceComparison.map(p => p.productName).filter(Boolean))];
+            if (foundProducts.length > 0) {
+                systemPrompt += `\n${language === 'ar' ? 'المنتجات الموجودة' : 'Existing products'}: ${foundProducts.join(', ')}`;
+            }
+        } else {
+            systemPrompt += `\n${language === 'ar' ? 'تحذير' : 'WARNING'}: No shopping links found - products might not exist`;
+        }
     }
 
+    systemPrompt += `\n\nIMPORTANT: If shopping links exist, the products ARE REAL. Trust the data!`;
     systemPrompt += `\n\n${language === 'ar' ? 'سؤال الزبون' : 'Customer question'}: ${query}`;
 
     try {
