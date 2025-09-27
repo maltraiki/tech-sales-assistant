@@ -74,18 +74,34 @@ export async function getAmazonProductImage(productName: string): Promise<string
     return products[0]?.image || null;
 }
 
-// Get product details with price
-export async function getAmazonProductDetails(productName: string) {
+// Get product details with price and shopping links
+export async function getAmazonProductDetails(productName: string, language: string = 'en') {
     const products = await searchAmazonProducts(productName);
     if (products.length === 0) return null;
 
     const product = products[0];
+
+    // Create shopping links array with Amazon data
+    const shoppingLinks = [];
+
+    // Add Amazon link with affiliate URL
+    if (product.url) {
+        shoppingLinks.push({
+            store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
+            url: product.url, // This already has the affiliate tag from the API
+            price: product.price || 'Check Website',
+            available: true,
+            productName: product.title
+        });
+    }
+
     return {
         name: product.title,
         price: product.price,
         image: product.image,
         url: product.url,
         rating: product.rating,
-        reviews: product.reviewCount
+        reviews: product.reviewCount,
+        shoppingLinks
     };
 }

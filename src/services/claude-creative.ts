@@ -84,19 +84,35 @@ export async function processQuery(query: string, language: string = 'en', image
         try {
             // Choose image source based on parameter
             if (imageSource === 'amazon') {
-                console.log('Getting image from Amazon API for:', detectedProduct);
-                productImage = await getAmazonProductImage(detectedProduct);
-                console.log('Got Amazon image:', productImage ? 'YES' : 'NO');
+                console.log('Getting data from Amazon API for:', detectedProduct);
 
-                // Get Amazon product details for pricing
-                const amazonDetails = await getAmazonProductDetails(detectedProduct);
+                // Get full Amazon product details including image, price, and affiliate link
+                const amazonDetails = await getAmazonProductDetails(detectedProduct, language);
                 if (amazonDetails) {
-                    priceComparison = [{
-                        store: 'Amazon.sa',
-                        price: amazonDetails.price || 'Check site',
-                        rating: amazonDetails.rating,
-                        reviews: amazonDetails.reviews
-                    }];
+                    // Use Amazon image
+                    productImage = amazonDetails.image || null;
+                    console.log('Got Amazon image:', productImage ? 'YES' : 'NO');
+
+                    // Use Amazon shopping links with affiliate URL
+                    if (amazonDetails.shoppingLinks && amazonDetails.shoppingLinks.length > 0) {
+                        shoppingLinks = amazonDetails.shoppingLinks;
+
+                        // Also add other stores for comparison
+                        const otherStores = await getShoppingLinks(detectedProduct, language);
+                        // Filter out Amazon from other stores to avoid duplicate
+                        const nonAmazonStores = otherStores.filter(store =>
+                            !store.store.toLowerCase().includes('amazon')
+                        );
+                        shoppingLinks = shoppingLinks.concat(nonAmazonStores.slice(0, 3));
+                    }
+
+                    // Set price comparison from Amazon data
+                    priceComparison = shoppingLinks.map(link => ({
+                        store: link.store,
+                        price: link.price || 'Check Website',
+                        link: link.url,
+                        productName: link.productName || detectedProduct
+                    }));
                 }
             } else {
                 // Default to Serper API
@@ -187,7 +203,14 @@ export async function processQuery(query: string, language: string = 'en', image
         systemPrompt = `واااووو! أنا أكبر فان للجوالات بالسعودية! 🚀
 
 أحب التقنية مرةةة وأموت على الجوالات الجديدة! 💪
-بعطيك كل شي مثل ما أنا أتكلم مع صديقي بالقهوة!`;
+بعطيك كل شي مثل ما أنا أتكلم مع صديقي بالقهوة!
+
+مهم جداً: إذا المستخدم سأل عن منتج ما تعرفه أو غير واضح أو مو موجود، قول له:
+"والله ما أنا متأكد من المنتج اللي تسأل عنه... 🤔
+ممكن تقصد واحد من هذول: [اقترح منتجات حقيقية موجودة]؟
+لو كان كذا، اكتب السؤال مرة ثانية بالاسم الصحيح للمنتج وأنا جاهز أساعدك!"
+
+لا تتكلم أبداً عن منتجات مو موجودة أو تخترع مواصفات من عندك!`;
 
         if (isComparison) {
             systemPrompt += `
@@ -264,7 +287,14 @@ export async function processQuery(query: string, language: string = 'en', image
 
 I get SUPER excited about new tech and love sharing what makes each device special!
 No boring specs talk - I'll break it down like we're chatting at a tech store!
-Let's find you something AMAZING! 💪`;
+Let's find you something AMAZING! 💪
+
+IMPORTANT: If a user asks about a product I don't know or isn't clear or doesn't exist, say:
+"Hmm, I'm not sure about the exact product you're asking about... 🤔
+Did you maybe mean one of these: [suggest real existing products]?
+If yes, please ask again with the correct product name and I'll help you out!"
+
+NEVER talk about products that don't exist or make up specs!`;
 
         if (isComparison) {
             systemPrompt += `
