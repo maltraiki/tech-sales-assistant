@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Tech Sales Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        label {
+            color: #333;
+            font-weight: 500;
+        }
+
+        select, button {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-change {
+            color: #4caf50;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .stat-change.negative {
+            color: #f44336;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            color: #333;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .chart {
+            min-height: 300px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 8px;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            min-width: 30px;
+            transition: opacity 0.3s;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #333;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9fc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .funnel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .funnel-step {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .funnel-step-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .funnel-step-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .refresh-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge.prime {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.trending {
+            background: #4caf50;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            select, button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>📊 Analytics Dashboard</h1>
+            <div class="subtitle">
+                Real-time affiliate tracking and analytics
+                <span class="refresh-indicator"></span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <label>Period:</label>
+                <select id="period">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button onclick="refreshData()">🔄 Refresh</button>
+            </div>
+            <div class="control-group">
+                <button onclick="exportReport()">📥 Export Report</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalClicks">-</div>
+                <div class="stat-label">Total Clicks</div>
+                <div class="stat-change" id="clicksChange"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="conversionRate">-</div>
+                <div class="stat-label">Conversion Rate</div>
+                <div class="stat-change" id="conversionChange"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="estimatedRevenue">-</div>
+                <div class="stat-label">Est. Revenue (SAR)</div>
+                <div class="stat-change" id="revenueChange"></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uniqueSessions">-</div>
+                <div class="stat-label">Unique Sessions</div>
+                <div class="stat-change" id="sessionsChange"></div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="chart-container">
+                <h3 class="chart-title">🔥 Top Products</h3>
+                <div id="topProductsChart" class="chart">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title">📈 Conversion Funnel</h3>
+                <div id="funnelChart" class="funnel">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3 class="chart-title">⏰ Hourly Click Distribution</h3>
+            <div id="hourlyChart" class="chart">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3 class="chart-title">📱 Product Performance</h3>
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Clicks</th>
+                        <th>Searches</th>
+                        <th>CTR</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="5" class="loading">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2">
+            <div class="table-container">
+                <h3 class="chart-title">⚔️ Popular Comparisons</h3>
+                <table id="comparisonsTable">
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Count</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="3" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3 class="chart-title">🌐 Language Stats</h3>
+                <div id="languageStats">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = {};
+
+        async function loadAnalytics() {
+            const period = document.getElementById('period').value;
+
+            try {
+                // Load all analytics data
+                const [
+                    clickStats,
+                    topProducts,
+                    funnel,
+                    revenue,
+                    hourly,
+                    comparisons,
+                    languages
+                ] = await Promise.all([
+                    fetch('/api/analytics/click-stats').then(r => r.json()),
+                    fetch(`/api/analytics/top-products?days=${period}`).then(r => r.json()),
+                    fetch(`/api/analytics/conversion-funnel?days=${period}`).then(r => r.json()),
+                    fetch(`/api/analytics/revenue-estimate?days=${period}`).then(r => r.json()),
+                    fetch(`/api/analytics/hourly-clicks?days=${period}`).then(r => r.json()),
+                    fetch('/api/analytics/comparison-trends').then(r => r.json()),
+                    fetch('/api/analytics/language-stats').then(r => r.json())
+                ]);
+
+                // Update stats cards
+                updateStatsCards(clickStats, revenue);
+
+                // Update charts
+                updateTopProductsChart(topProducts);
+                updateFunnelChart(funnel);
+                updateHourlyChart(hourly);
+                updateProductsTable(topProducts);
+                updateComparisonsTable(comparisons);
+                updateLanguageStats(languages);
+
+                currentData = { clickStats, topProducts, funnel, revenue, hourly, comparisons, languages };
+
+            } catch (error) {
+                console.error('Failed to load analytics:', error);
+            }
+        }
+
+        function updateStatsCards(clickStats, revenue) {
+            document.getElementById('totalClicks').textContent = clickStats?.total_clicks || '0';
+            document.getElementById('uniqueSessions').textContent = clickStats?.unique_sessions || '0';
+
+            const ctr = clickStats?.avg_clicks_per_session || 0;
+            document.getElementById('conversionRate').textContent = `${ctr.toFixed(2)}%`;
+
+            const estRevenue = revenue?.estimated_revenue || 0;
+            document.getElementById('estimatedRevenue').textContent = `${estRevenue.toFixed(0)}`;
+        }
+
+        function updateTopProductsChart(products) {
+            const container = document.getElementById('topProductsChart');
+
+            if (!products || products.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            const maxClicks = Math.max(...products.map(p => p.click_count));
+
+            container.innerHTML = products.slice(0, 5).map(product => `
+                <div class="bar" style="height: ${(product.click_count / maxClicks) * 250}px">
+                    <div class="bar-value">${product.click_count}</div>
+                    <div class="bar-label">${product.product_name?.substring(0, 15)}...</div>
+                </div>
+            `).join('');
+        }
+
+        function updateFunnelChart(funnel) {
+            const container = document.getElementById('funnelChart');
+
+            if (!funnel || funnel.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            const maxCount = Math.max(...funnel.map(f => f.count));
+
+            container.innerHTML = funnel.map((step, index) => `
+                <div class="funnel-step" style="width: ${(step.count / maxCount) * 100}%; margin-left: ${index * 20}px">
+                    <span class="funnel-step-label">${step.stage}</span>
+                    <span class="funnel-step-value">${step.count} (${step.percentage}%)</span>
+                </div>
+            `).join('');
+        }
+
+        function updateHourlyChart(hourly) {
+            const container = document.getElementById('hourlyChart');
+
+            if (!hourly || hourly.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            // Fill in missing hours with 0
+            const hourMap = {};
+            for (let i = 0; i < 24; i++) {
+                hourMap[i] = 0;
+            }
+            hourly.forEach(h => {
+                hourMap[h.hour_of_day] = h.click_count;
+            });
+
+            const maxClicks = Math.max(...Object.values(hourMap));
+
+            container.innerHTML = Object.entries(hourMap).map(([hour, clicks]) => `
+                <div class="bar" style="height: ${maxClicks > 0 ? (clicks / maxClicks) * 200 : 0}px">
+                    <div class="bar-value">${clicks}</div>
+                    <div class="bar-label">${hour}:00</div>
+                </div>
+            `).join('');
+        }
+
+        function updateProductsTable(products) {
+            const tbody = document.querySelector('#productsTable tbody');
+
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>${product.product_name || 'Unknown'}</td>
+                    <td>${product.click_count || 0}</td>
+                    <td>${product.search_count || 0}</td>
+                    <td>${product.conversion_rate || 0}%</td>
+                    <td>
+                        ${product.click_count > 10 ? '<span class="badge trending">TRENDING</span>' : ''}
+                        ${product.conversion_rate > 5 ? '<span class="badge prime">HIGH CTR</span>' : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateComparisonsTable(comparisons) {
+            const tbody = document.querySelector('#comparisonsTable tbody');
+
+            if (!comparisons || comparisons.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No data available</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = comparisons.slice(0, 5).map(comp => `
+                <tr>
+                    <td>${comp.product1_name} vs ${comp.product2_name}</td>
+                    <td>${comp.comparison_count}</td>
+                    <td>${comp.trend_score > 10 ? '📈' : '➡️'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLanguageStats(languages) {
+            const container = document.getElementById('languageStats');
+
+            if (!languages || languages.length === 0) {
+                container.innerHTML = '<div class="loading">No data available</div>';
+                return;
+            }
+
+            container.innerHTML = languages.map(lang => `
+                <div style="display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #e0e0e0;">
+                    <span>${lang.language === 'ar' ? '🇸🇦 Arabic' : '🇬🇧 English'}</span>
+                    <strong>${lang.percentage}%</strong>
+                </div>
+            `).join('');
+        }
+
+        function refreshData() {
+            loadAnalytics();
+        }
+
+        function exportReport() {
+            const period = document.getElementById('period').value;
+            window.open(`/api/analytics/report?days=${period}`, '_blank');
+        }
+
+        // Load data on page load
+        loadAnalytics();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAnalytics, 30000);
+
+        // Refresh on period change
+        document.getElementById('period').addEventListener('change', loadAnalytics);
+    </script>
+</body>
+</html>
