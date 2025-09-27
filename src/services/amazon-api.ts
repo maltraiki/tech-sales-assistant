@@ -24,7 +24,7 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
             title: query,
             url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21&linkCode=ll2`,
             price: 'Check on Amazon',
-            image: null
+            image: undefined
         }];
     }
 
@@ -82,7 +82,7 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
             title: query,
             url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21&linkCode=ll2`,
             price: 'Check on Amazon',
-            image: null
+            image: undefined
         }];
     }
 }
@@ -103,7 +103,7 @@ export async function getAmazonProductDetails(productName: string, language: str
         return {
             name: productName,
             price: 'Check on Amazon',
-            image: null,
+            image: undefined,
             url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21&linkCode=ll2`,
             shoppingLinks: [{
                 store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
