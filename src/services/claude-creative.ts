@@ -208,11 +208,8 @@ export async function processQuery(query: string, language: string = 'en', image
 
 قاعدة مهمة جداً - لا تخترع منتجات أو مواصفات:
 إذا المستخدم سأل عن أي منتج مو موجود (أخطاء إملائية، أسماء مختلقة، منتجات غير واضحة)، لازم تقول:
-"أوقف! ما أعرف '[اسم المنتج]' هذا 🤔
-ممكن تقصد واحد من الجوالات الحقيقية هذي:
-- iPhone 16 Pro
-- iPhone 15 Pro
-- Samsung Galaxy S24
+"أوقف! ما أعرف '[اسم المنتج اللي كتبه بالضبط]' هذا 🤔
+ممكن تقصد: [اقترح منتجات حقيقية مشابهة للي كتبه]؟
 اكتب السؤال مرة ثانية بالاسم الصحيح!"
 
 لا تقارن أو تناقش منتجات غير موجودة!
@@ -302,11 +299,8 @@ Let's find you something AMAZING! 💪
 
 CRITICAL RULE - NEVER MAKE UP PRODUCTS OR SPECS:
 If a user asks about ANY product that doesn't exist (typos, made-up names, unclear products), you MUST say:
-"Hold up! I'm not familiar with '[product name]' 🤔
-Did you mean one of these real phones:
-- iPhone 16 Pro
-- iPhone 15 Pro
-- Samsung Galaxy S24
+"Hold up! I'm not familiar with '[exact product name they typed]' 🤔
+Did you mean: [suggest similar REAL products based on what they typed]?
 Please ask again with the correct product name!"
 
 DO NOT compare or discuss products that don't exist!
