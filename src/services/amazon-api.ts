@@ -53,14 +53,21 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
             return [];
         }
 
-        return response.SearchResult.Items.map((item: any) => ({
-            title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Product',
-            price: item.Offers?.Listings?.[0]?.Price?.DisplayAmount,
-            image: item.Images?.Primary?.Large?.URL,
-            url: item.DetailPageURL,
-            rating: item.CustomerReviews?.Rating?.DisplayValue,
-            reviewCount: item.CustomerReviews?.Count?.DisplayValue
-        }));
+        return response.SearchResult.Items.map((item: any) => {
+            // Log the affiliate URL to verify it has the tag
+            const affiliateUrl = item.DetailPageURL;
+            console.log('Amazon Affiliate URL:', affiliateUrl);
+            console.log('Has affiliate tag?:', affiliateUrl?.includes('tag=mobily00-21'));
+
+            return {
+                title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Product',
+                price: item.Offers?.Listings?.[0]?.Price?.DisplayAmount,
+                image: item.Images?.Primary?.Large?.URL,
+                url: affiliateUrl,
+                rating: item.CustomerReviews?.Rating?.DisplayValue,
+                reviewCount: item.CustomerReviews?.Count?.DisplayValue
+            };
+        });
 
     } catch (error: any) {
         console.error('Amazon API error details:', {
