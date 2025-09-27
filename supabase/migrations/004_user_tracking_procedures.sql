@@ -173,7 +173,7 @@ CREATE OR REPLACE FUNCTION get_session_conversion_funnel(
 )
 RETURNS TABLE (
     stage TEXT,
-    timestamp TIMESTAMP WITH TIME ZONE,
+    action_time TIMESTAMP WITH TIME ZONE,
     details TEXT
 ) AS $$
 BEGIN
@@ -209,7 +209,7 @@ BEGIN
     WHERE user_session_id = p_session_id
     GROUP BY user_session_id
 
-    ORDER BY timestamp;
+    ORDER BY action_time;
 END;
 $$ LANGUAGE plpgsql;
 
