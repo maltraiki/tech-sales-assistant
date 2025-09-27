@@ -14,6 +14,13 @@ declare module 'paapi5-nodejs-sdk' {
         SearchIndex?: string;
         ItemCount?: number;
         Resources?: string[];
+        Marketplace?: string;
+        CurrencyOfPreference?: string;
+        LanguagesOfPreference?: string[];
+        Condition?: string;
+        DeliveryFlags?: string[];
+        SortBy?: string;
+        [key: string]: any; // Allow indexing with string
     }
 
     export class GetItemsRequest {

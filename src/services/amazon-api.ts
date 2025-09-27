@@ -168,7 +168,7 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
 
             if (cachedProducts && cachedProducts.length > 0) {
                 console.log('Returning cached products');
-                return cachedProducts.map(p => ({
+                return cachedProducts.map((p: any) => ({
                     asin: p.asin,
                     title: p.product_name,
                     price: p.price ? `${p.currency} ${p.price}` : 'Check on Amazon',

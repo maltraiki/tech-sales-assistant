@@ -234,7 +234,7 @@ export async function cleanupOldData(): Promise<number> {
             .rpc('cleanup_old_clicks');
 
         if (clickError) {
-            console.error('Error cleaning old clicks:', error);
+            console.error('Error cleaning old clicks:', clickError);
         }
 
         // Clean old affiliate data
