@@ -1008,7 +1008,10 @@
                 const imageSource = document.getElementById('imageSource').value;
                 const response = await fetch('/search', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-ID': sessionId
+                    },
                     body: JSON.stringify({ query, language: currentLang, imageSource })
                 });
 

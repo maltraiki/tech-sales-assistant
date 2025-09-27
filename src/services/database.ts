@@ -11,6 +11,8 @@ export interface Conversation {
     created_at?: string;
     user_ip?: string;
     user_agent?: string;
+    user_session_id?: string;
+    comparison_query?: boolean;
 }
 
 // Initialize Supabase client
@@ -34,15 +36,25 @@ export async function saveConversation(conversation: Conversation) {
         return null;
     }
 
+    // Check if it's a comparison query
+    const isComparison = /vs|compare|versus|او|مقابل|ضد/i.test(conversation.query);
+
     try {
         const { data, error } = await supabase
             .from('conversations')
-            .insert([conversation])
+            .insert([{
+                ...conversation,
+                comparison_query: isComparison
+            }])
             .select();
 
         if (error) {
             console.error('Error saving conversation:', error);
             return null;
+        }
+
+        if (isComparison) {
+            console.log('📊 Marked as comparison query');
         }
 
         return data;

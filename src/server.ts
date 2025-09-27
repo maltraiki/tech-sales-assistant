@@ -39,6 +39,9 @@ app.post('/search', async (req: Request<{}, {}, SearchRequest>, res: Response) =
     try {
         const result = await processQuery(query, language);
 
+        // Get session ID from header
+        const sessionId = req.headers['x-session-id'] as string || generateSessionId();
+
         // Save conversation to database
         await saveConversation({
             query,
@@ -47,7 +50,8 @@ app.post('/search', async (req: Request<{}, {}, SearchRequest>, res: Response) =
             image_url: result.image || undefined,
             prices: result.prices,
             user_ip: req.ip,
-            user_agent: req.headers['user-agent']
+            user_agent: req.headers['user-agent'],
+            user_session_id: sessionId
         });
 
         res.json(result);

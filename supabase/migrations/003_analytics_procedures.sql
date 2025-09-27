@@ -297,8 +297,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create indexes for analytics queries
-CREATE INDEX IF NOT EXISTS idx_click_tracking_clicked_hour
-ON click_tracking(EXTRACT(HOUR FROM clicked_at));
+-- Note: Functional indexes with EXTRACT require IMMUTABLE functions
+-- Using regular index on clicked_at instead
+CREATE INDEX IF NOT EXISTS idx_click_tracking_clicked_at_hour
+ON click_tracking(clicked_at);
 
 CREATE INDEX IF NOT EXISTS idx_affiliate_data_last_updated
 ON affiliate_data(last_updated DESC);
