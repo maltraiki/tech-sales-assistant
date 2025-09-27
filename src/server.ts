@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { processQuery } from './services/claude-creative.js';
 import { SearchRequest } from './types.js';
 import { saveConversation, getRecentConversations, getConversationStats } from './services/database.js';
+import { trackClick, generateSessionId } from './services/click-tracking.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -83,6 +84,36 @@ app.get('/api/stats', async (req: Request, res: Response) => {
         console.error('❌ Stats error:', error);
         res.status(500).json({
             error: 'Failed to fetch statistics',
+            details: (error as Error).message
+        });
+    }
+});
+
+// Track affiliate link click
+app.post('/api/track-click', async (req: Request, res: Response) => {
+    try {
+        const { asin, product_name, affiliate_url, language } = req.body;
+
+        // Generate or retrieve session ID
+        const sessionId = req.headers['x-session-id'] as string || generateSessionId();
+
+        await trackClick({
+            asin,
+            product_name,
+            affiliate_url,
+            user_session_id: sessionId,
+            language
+        }, req);
+
+        res.json({
+            success: true,
+            sessionId,
+            message: 'Click tracked successfully'
+        });
+    } catch (error) {
+        console.error('❌ Click tracking error:', error);
+        res.status(500).json({
+            error: 'Failed to track click',
             details: (error as Error).message
         });
     }

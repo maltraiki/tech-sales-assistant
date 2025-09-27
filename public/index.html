@@ -738,6 +738,39 @@
             }
         }
 
+        .affiliate-disclosure {
+            background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+            border-top: 2px solid #667eea;
+            padding: 20px;
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .affiliate-disclosure strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .affiliate-disclosure a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .affiliate-disclosure a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .affiliate-disclosure {
+                padding: 15px;
+                font-size: 12px;
+                margin-top: 30px;
+            }
+        }
+
         @media (max-width: 480px) {
             .container {
                 padding: 15px;
@@ -836,10 +869,45 @@
         </div>
 
         <div class="response" id="response"></div>
+
+        <div class="affiliate-disclosure">
+            <strong>Affiliate Disclosure:</strong> We participate in the Amazon Associates Program, an affiliate advertising program.
+            When you click on links to Amazon.sa and make a purchase, we may earn a commission at no additional cost to you.
+            This helps support our service and keep it free to use. Thank you for your support!
+        </div>
     </div>
 
     <script>
         let currentLang = 'en';
+        let sessionId = localStorage.getItem('sessionId') || generateSessionId();
+
+        function generateSessionId() {
+            const newSessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
+            localStorage.setItem('sessionId', newSessionId);
+            return newSessionId;
+        }
+
+        // Track affiliate link clicks
+        async function trackAffiliateClick(asin, productName, affiliateUrl) {
+            try {
+                await fetch('/api/track-click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Session-ID': sessionId
+                    },
+                    body: JSON.stringify({
+                        asin,
+                        product_name: productName,
+                        affiliate_url: affiliateUrl,
+                        language: currentLang
+                    })
+                });
+                console.log('Click tracked:', productName);
+            } catch (error) {
+                console.error('Failed to track click:', error);
+            }
+        }
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -981,19 +1049,25 @@
                             : '<h3>🛍️ Where to Buy in Saudi Arabia</h3>';
                         html += buyHeaderText;
                         data.prices.forEach(price => {
+                            // Extract ASIN from Amazon URL if available
+                            const asinMatch = price.link?.match(/\/dp\/([A-Z0-9]{10})/);
+                            const asin = asinMatch ? asinMatch[1] : null;
+                            const productName = price.productName || document.getElementById('searchInput').value || 'Product';
+
                             const linkHtml = price.link
-                                ? `<a href="${price.link}" target="_blank" class="price-item-link">`
+                                ? `<a href="${price.link}" target="_blank" class="price-item-link"
+                                     onclick="trackAffiliateClick('${asin || ''}', '${productName.replace(/'/g, "\\'")}', '${price.link.replace(/'/g, "\\'")}')">`
                                 : '<div class="price-item">';
                             const closingTag = price.link ? '</a>' : '</div>';
 
                             const shopNowText = currentLang === 'ar' ? 'تسوق الآن ←' : 'Shop Now →';
-                            const productName = price.productName || document.getElementById('searchInput').value || 'Product';
 
-                            // Check if it's an Amazon affiliate link
+                            // Check if it's an Amazon affiliate link and show Prime badge if available
                             const hasAffiliateTag = price.link && price.link.includes('tag=mobily00-21');
+                            const primeFlag = price.isPrime ? '<span style="background: #ff9800; color: white; font-size: 11px; padding: 3px 6px; border-radius: 3px; margin-right: 8px; font-weight: bold;">PRIME</span>' : '';
                             const adFlag = price.isFromAmazonAPI ?
-                                '<span style="background: #ff9800; color: white; font-size: 11px; padding: 3px 6px; border-radius: 3px; margin-right: 8px; font-weight: bold;">API</span>' :
-                                (hasAffiliateTag ? '<span style="background: #4caf50; color: white; font-size: 11px; padding: 3px 6px; border-radius: 3px; margin-right: 8px; font-weight: bold;">AFFILIATE</span>' : '');
+                                `${primeFlag}<span style="background: #667eea; color: white; font-size: 11px; padding: 3px 6px; border-radius: 3px; margin-right: 8px; font-weight: bold;">✓ VERIFIED</span>` :
+                                '';
 
                             html += `
                                 ${linkHtml}

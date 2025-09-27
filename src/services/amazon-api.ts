@@ -1,4 +1,5 @@
 import ProductAdvertisingAPIv1 from 'paapi5-nodejs-sdk';
+import { supabase } from './supabase.js';
 
 // Initialize Amazon Product Advertising API
 const defaultClient = ProductAdvertisingAPIv1.ApiClient.instance;
@@ -8,12 +9,21 @@ defaultClient.host = 'webservices.amazon.sa'; // Saudi Arabia endpoint
 defaultClient.region = 'eu-west-1'; // Saudi Arabia uses EU region
 
 export interface AmazonProduct {
+    asin?: string;
     title: string;
     price?: string;
+    priceAmount?: number;
+    currency?: string;
     image?: string;
     url?: string;
+    detailPageURL?: string;
     rating?: number;
     reviewCount?: number;
+    isPrime?: boolean;
+    isFulfilledByAmazon?: boolean;
+    savingsAmount?: string;
+    savingsPercentage?: number;
+    lowestPrice?: string;
 }
 
 export async function searchAmazonProducts(query: string): Promise<AmazonProduct[]> {
@@ -37,12 +47,25 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
         searchRequest['Keywords'] = query;
         searchRequest['SearchIndex'] = 'Electronics';
         searchRequest['ItemCount'] = 5;
+        searchRequest['Marketplace'] = 'www.amazon.sa'; // Saudi Arabia marketplace
+        searchRequest['CurrencyOfPreference'] = 'SAR'; // Saudi Riyals
+        searchRequest['LanguagesOfPreference'] = ['ar_SA']; // Arabic content
+        searchRequest['Condition'] = 'New'; // Only new items
+        searchRequest['DeliveryFlags'] = ['Prime', 'FulfilledByAmazon']; // Prime and FBA items
+        searchRequest['SortBy'] = 'Relevance'; // Sort by relevance
         searchRequest['Resources'] = [
-            'Images.Primary.Large',
             'ItemInfo.Title',
+            'Images.Primary.Small',
+            'Images.Primary.Medium',
+            'Images.Primary.Large',
             'Offers.Listings.Price',
-            'CustomerReviews.Rating',
-            'CustomerReviews.Count'
+            'Offers.Listings.SavingBasis',
+            'Offers.Summaries.LowestPrice',
+            'Offers.Listings.DeliveryInfo.IsPrimeEligible',
+            'Offers.Listings.DeliveryInfo.IsFreeShippingEligible',
+            'Offers.Listings.DeliveryInfo.IsAmazonFulfilled',
+            'CustomerReviews.Count',
+            'CustomerReviews.StarRating'
         ];
 
         const response = await new Promise<any>((resolve, reject) => {
@@ -59,31 +82,196 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
             return [];
         }
 
-        return response.SearchResult.Items.map((item: any) => {
-            // Log the affiliate URL to verify it has the tag
-            const affiliateUrl = item.DetailPageURL;
-            console.log('Amazon Affiliate URL:', affiliateUrl);
-            console.log('Has affiliate tag?:', affiliateUrl?.includes('tag=mobily00-21'));
+        const products = await Promise.all(response.SearchResult.Items.map(async (item: any) => {
+            // Use DetailPageURL for exact product link with affiliate tag
+            const detailPageURL = item.DetailPageURL;
+            console.log('Amazon DetailPageURL:', detailPageURL);
 
-            return {
+            // Get best available image (fallback from Large to Medium to Small)
+            const imageUrl = item.Images?.Primary?.Large?.URL ||
+                           item.Images?.Primary?.Medium?.URL ||
+                           item.Images?.Primary?.Small?.URL;
+
+            // Extract price information
+            const listing = item.Offers?.Listings?.[0];
+            const priceAmount = listing?.Price?.Amount;
+            const displayPrice = listing?.Price?.DisplayAmount;
+            const savingsAmount = listing?.Price?.Savings?.Amount;
+            const savingsPercentage = listing?.Price?.Savings?.Percentage;
+            const lowestPrice = item.Offers?.Summaries?.[0]?.LowestPrice?.DisplayAmount;
+
+            // Extract delivery information
+            const isPrime = listing?.DeliveryInfo?.IsPrimeEligible || false;
+            const isFulfilledByAmazon = listing?.DeliveryInfo?.IsAmazonFulfilled || false;
+
+            const product: AmazonProduct = {
+                asin: item.ASIN,
                 title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Product',
-                price: item.Offers?.Listings?.[0]?.Price?.DisplayAmount,
-                image: item.Images?.Primary?.Large?.URL,
-                url: affiliateUrl,
-                rating: item.CustomerReviews?.Rating?.DisplayValue,
-                reviewCount: item.CustomerReviews?.Count?.DisplayValue
+                price: displayPrice || lowestPrice || 'Check on Amazon',
+                priceAmount: priceAmount,
+                currency: listing?.Price?.Currency || 'SAR',
+                image: imageUrl,
+                url: detailPageURL, // Using DetailPageURL for exact product
+                detailPageURL: detailPageURL,
+                rating: item.CustomerReviews?.StarRating?.Value,
+                reviewCount: item.CustomerReviews?.Count,
+                isPrime: isPrime,
+                isFulfilledByAmazon: isFulfilledByAmazon,
+                savingsAmount: savingsAmount ? `Save ${listing?.Price?.Savings?.DisplayAmount}` : undefined,
+                savingsPercentage: savingsPercentage,
+                lowestPrice: lowestPrice
             };
-        });
+
+            // Store in affiliate_data table for caching and analytics
+            if (item.ASIN) {
+                try {
+                    await supabase.from('affiliate_data').upsert({
+                        asin: item.ASIN,
+                        product_name: product.title,
+                        detail_page_url: detailPageURL,
+                        image_url: imageUrl,
+                        price: priceAmount,
+                        currency: product.currency,
+                        is_prime: isPrime,
+                        is_fulfilled_by_amazon: isFulfilledByAmazon,
+                        rating: product.rating,
+                        reviews_count: product.reviewCount,
+                        lowest_price: item.Offers?.Summaries?.[0]?.LowestPrice?.Amount,
+                        savings_amount: savingsAmount,
+                        savings_percentage: savingsPercentage,
+                        last_updated: new Date()
+                    });
+
+                    // Increment search count
+                    await supabase.rpc('increment_search_count', { p_asin: item.ASIN });
+                } catch (dbError) {
+                    console.error('Error storing affiliate data:', dbError);
+                }
+            }
+
+            return product;
+        }));
+
+        return products;
 
     } catch (error: any) {
-        console.error('Amazon API error - returning fallback:', error.message);
-        // Return fallback search with affiliate link on error
+        console.error('Amazon API error:', error.message);
+
+        // Try to fetch from cache first
+        try {
+            const { data: cachedProducts } = await supabase
+                .from('affiliate_data')
+                .select('*')
+                .ilike('product_name', `%${query}%`)
+                .order('last_updated', { ascending: false })
+                .limit(5);
+
+            if (cachedProducts && cachedProducts.length > 0) {
+                console.log('Returning cached products');
+                return cachedProducts.map(p => ({
+                    asin: p.asin,
+                    title: p.product_name,
+                    price: p.price ? `${p.currency} ${p.price}` : 'Check on Amazon',
+                    url: p.detail_page_url,
+                    detailPageURL: p.detail_page_url,
+                    image: p.image_url,
+                    isPrime: p.is_prime,
+                    rating: p.rating,
+                    reviewCount: p.reviews_count
+                }));
+            }
+        } catch (cacheError) {
+            console.error('Cache lookup failed:', cacheError);
+        }
+
+        // Final fallback with search URL
         return [{
             title: query,
             url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21&linkCode=ll2`,
             price: 'Check on Amazon',
             image: undefined
         }];
+    }
+}
+
+// Get items by ASIN for efficient comparison
+export async function getItemsByASIN(asins: string[]): Promise<AmazonProduct[]> {
+    if (!process.env.AMAZON_ACCESS_KEY || !process.env.AMAZON_SECRET_KEY) {
+        console.log('Amazon API keys not configured');
+        return [];
+    }
+
+    try {
+        const api = new ProductAdvertisingAPIv1.DefaultApi();
+
+        const getItemsRequest = new ProductAdvertisingAPIv1.GetItemsRequest();
+        getItemsRequest['PartnerTag'] = 'mobily00-21';
+        getItemsRequest['PartnerType'] = 'Associates';
+        getItemsRequest['ItemIds'] = asins;
+        getItemsRequest['ItemIdType'] = 'ASIN';
+        getItemsRequest['Marketplace'] = 'www.amazon.sa';
+        getItemsRequest['CurrencyOfPreference'] = 'SAR';
+        getItemsRequest['LanguagesOfPreference'] = ['ar_SA'];
+        getItemsRequest['Condition'] = 'New';
+        getItemsRequest['Resources'] = [
+            'ItemInfo.Title',
+            'Images.Primary.Small',
+            'Images.Primary.Medium',
+            'Images.Primary.Large',
+            'Offers.Listings.Price',
+            'Offers.Listings.SavingBasis',
+            'Offers.Summaries.LowestPrice',
+            'Offers.Listings.DeliveryInfo.IsPrimeEligible',
+            'Offers.Listings.DeliveryInfo.IsAmazonFulfilled',
+            'CustomerReviews.Count',
+            'CustomerReviews.StarRating'
+        ];
+
+        const response = await new Promise<any>((resolve, reject) => {
+            api.getItems(getItemsRequest, (error: any, data: any) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(data);
+                }
+            });
+        });
+
+        if (!response?.ItemsResult?.Items) {
+            return [];
+        }
+
+        return response.ItemsResult.Items.map((item: any) => {
+            const imageUrl = item.Images?.Primary?.Large?.URL ||
+                           item.Images?.Primary?.Medium?.URL ||
+                           item.Images?.Primary?.Small?.URL;
+
+            const listing = item.Offers?.Listings?.[0];
+            const displayPrice = listing?.Price?.DisplayAmount;
+            const lowestPrice = item.Offers?.Summaries?.[0]?.LowestPrice?.DisplayAmount;
+
+            return {
+                asin: item.ASIN,
+                title: item.ItemInfo?.Title?.DisplayValue || 'Unknown Product',
+                price: displayPrice || lowestPrice || 'Check on Amazon',
+                priceAmount: listing?.Price?.Amount,
+                currency: listing?.Price?.Currency || 'SAR',
+                image: imageUrl,
+                url: item.DetailPageURL,
+                detailPageURL: item.DetailPageURL,
+                rating: item.CustomerReviews?.StarRating?.Value,
+                reviewCount: item.CustomerReviews?.Count,
+                isPrime: listing?.DeliveryInfo?.IsPrimeEligible || false,
+                isFulfilledByAmazon: listing?.DeliveryInfo?.IsAmazonFulfilled || false,
+                savingsAmount: listing?.Price?.Savings?.DisplayAmount,
+                savingsPercentage: listing?.Price?.Savings?.Percentage,
+                lowestPrice: lowestPrice
+            };
+        });
+
+    } catch (error: any) {
+        console.error('GetItems API error:', error.message);
+        return [];
     }
 }
 
@@ -134,7 +322,10 @@ export async function getAmazonProductDetails(productName: string, language: str
         price: product.price || 'Check Website',
         available: true,
         productName: product.title || productName,
-        isFromAmazonAPI: true // Flag to identify this came from Amazon API
+        isFromAmazonAPI: true, // Flag to identify this came from Amazon API
+        isPrime: product.isPrime, // Pass Prime eligibility
+        isFulfilledByAmazon: product.isFulfilledByAmazon, // Pass FBA status
+        asin: product.asin // Pass ASIN for tracking
     });
 
     return {

@@ -16,13 +16,27 @@ declare module 'paapi5-nodejs-sdk' {
         Resources?: string[];
     }
 
+    export class GetItemsRequest {
+        PartnerTag?: string;
+        PartnerType?: string;
+        ItemIds?: string[];
+        ItemIdType?: string;
+        Marketplace?: string;
+        CurrencyOfPreference?: string;
+        LanguagesOfPreference?: string[];
+        Condition?: string;
+        Resources?: string[];
+    }
+
     export class DefaultApi {
         searchItems(request: SearchItemsRequest, callback: (error: any, data: any) => void): void;
+        getItems(request: GetItemsRequest, callback: (error: any, data: any) => void): void;
     }
 
     const ProductAdvertisingAPIv1: {
         ApiClient: typeof ApiClient;
         SearchItemsRequest: typeof SearchItemsRequest;
+        GetItemsRequest: typeof GetItemsRequest;
         DefaultApi: typeof DefaultApi;
     };
 
