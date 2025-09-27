@@ -22,7 +22,7 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
         // Return a fallback search result with affiliate link
         return [{
             title: query,
-            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21`,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21&linkCode=ll2`,
             price: 'Check on Amazon',
             image: null
         }];
@@ -80,7 +80,7 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
         // Return fallback search with affiliate link on error
         return [{
             title: query,
-            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21`,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21&linkCode=ll2`,
             price: 'Check on Amazon',
             image: null
         }];
@@ -104,10 +104,10 @@ export async function getAmazonProductDetails(productName: string, language: str
             name: productName,
             price: 'Check on Amazon',
             image: null,
-            url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21`,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21&linkCode=ll2`,
             shoppingLinks: [{
                 store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
-                url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21`,
+                url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21&linkCode=ll2`,
                 price: 'Check Website',
                 available: true,
                 productName: productName,
