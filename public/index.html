@@ -756,11 +756,13 @@
 
                             const shopNowText = currentLang === 'ar' ? 'تسوق الآن ←' : 'Shop Now →';
                             const productName = price.productName || document.getElementById('searchInput').value || 'Product';
+                            const adFlag = price.isFromAmazonAPI ? '<span style="background: #ff9800; color: white; font-size: 10px; padding: 2px 4px; border-radius: 3px; margin-right: 5px; font-weight: bold;">AD</span>' : '';
+
                             html += `
                                 ${linkHtml}
                                     <div class="store-info">
-                                        <span class="store-name">${price.store} - ${productName}</span>
-                                        <span class="price">${price.price}</span>
+                                        <span class="store-name">${adFlag}${price.store} - ${productName}</span>
+                                        <span class="price" style="color: #667eea; font-weight: bold;">${price.price || 'Check Website'}</span>
                                     </div>
                                     ${price.link ? `<span class="shop-now">${shopNowText}</span>` : ''}
                                 ${closingTag}

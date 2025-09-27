@@ -91,7 +91,8 @@ export async function getAmazonProductDetails(productName: string, language: str
             url: product.url, // This already has the affiliate tag from the API
             price: product.price || 'Check Website',
             available: true,
-            productName: product.title
+            productName: product.title,
+            isFromAmazonAPI: true // Flag to identify this came from Amazon API
         });
     }
 
