@@ -22,11 +22,10 @@ export async function getShoppingLinks(productName: string, language: string = '
         noon: encodeURIComponent(cleanProductName)
     };
 
-    // Amazon Saudi Arabia link with affiliate parameters
-    const amazonAffiliateParams = '&linkCode=ll2&tag=mobily00-21&linkId=112a41b46657617b0afd9ddf27343051&language=en_AE&ref_=as_li_ss_tl';
+    // Amazon Saudi Arabia link - clean search, no affiliate
     links.push({
         store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
-        url: `https://www.amazon.sa/s?k=${searchTerms.amazon}${amazonAffiliateParams}`,
+        url: `https://www.amazon.sa/s?k=${searchTerms.amazon}`,
         available: true,
         productName: productName
     });
@@ -81,13 +80,10 @@ export function getDirectProductLinks(productName: string, language: string = 'e
         .replace(/[^\w\s]/g, ' ')
         .replace(/\s+/g, '+');
 
-    // Amazon affiliate parameters
-    const amazonAffiliateParams = '&linkCode=ll2&tag=mobily00-21&linkId=112a41b46657617b0afd9ddf27343051&language=en_AE&ref_=as_li_ss_tl';
-
-    // Always add Amazon.sa with affiliate link
+    // Always add Amazon.sa - clean search, no affiliate
     links.push({
         store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
-        url: `https://www.amazon.sa/s?k=${cleanName}${amazonAffiliateParams}`,
+        url: `https://www.amazon.sa/s?k=${cleanName}`,
         available: true,
         productName: productName
     });
