@@ -126,6 +126,34 @@
             display: flex;
             gap: 12px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .api-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .api-selector label {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .api-selector select {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
         }
 
         input {
@@ -526,6 +554,14 @@
             <p class="subtitle" data-en="Your super friendly tech sales assistant! Let's find your perfect gadget 😊" data-ar="مساعدك الودود لمبيعات التقنية! دعنا نجد جهازك المثالي 😊">Your super friendly tech sales assistant! Let's find your perfect gadget 😊</p>
         </div>
 
+        <div class="api-selector">
+            <label data-en="Image Source:" data-ar="مصدر الصور:">Image Source:</label>
+            <select id="imageSource">
+                <option value="serper">Serper API</option>
+                <option value="amazon">Amazon API</option>
+            </select>
+        </div>
+
         <div class="examples">
             <h3 data-en="💡 Try these fun questions:" data-ar="💡 جرب هذه الأسئلة الممتعة:">💡 Try these fun questions:</h3>
             <div class="example-queries">
@@ -669,10 +705,11 @@
             responseDiv.classList.remove('active');
 
             try {
+                const imageSource = document.getElementById('imageSource').value;
                 const response = await fetch('/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, language: currentLang })
+                    body: JSON.stringify({ query, language: currentLang, imageSource })
                 });
 
                 if (!response.ok) {

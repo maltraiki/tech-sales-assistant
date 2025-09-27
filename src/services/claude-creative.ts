@@ -3,8 +3,9 @@ import { SearchResponse } from '../types.js';
 import { getProductImage, comparePrices } from './serper.js';
 import { getDirectProductLinks, getShoppingLinks } from './shopping-links.js';
 import { findProductImage } from '../data/products.js';
+import { getAmazonProductImage, getAmazonProductDetails } from './amazon-api.js';
 
-export async function processQuery(query: string, language: string = 'en'): Promise<SearchResponse> {
+export async function processQuery(query: string, language: string = 'en', imageSource: string = 'serper'): Promise<SearchResponse> {
     console.log(`\n🤖 Processing creative query: "${query}" in ${language}\n`);
 
     // Debug API key loading
@@ -31,6 +32,8 @@ export async function processQuery(query: string, language: string = 'en'): Prom
     // Try to get real product image from search
     let productImage: string | null = null;
     let priceComparison: any[] = [];
+
+    console.log(`Using image source: ${imageSource}`);
 
     // Extract product names from query for image search (English and Arabic)
     const productPatterns = [
@@ -79,8 +82,29 @@ export async function processQuery(query: string, language: string = 'en'): Prom
 
     if (detectedProduct) {
         try {
-            // Try to get image from Serper API first, fallback to local database
-            productImage = await getProductImage(detectedProduct);
+            // Choose image source based on parameter
+            if (imageSource === 'amazon') {
+                console.log('Getting image from Amazon API for:', detectedProduct);
+                productImage = await getAmazonProductImage(detectedProduct);
+                console.log('Got Amazon image:', productImage ? 'YES' : 'NO');
+
+                // Get Amazon product details for pricing
+                const amazonDetails = await getAmazonProductDetails(detectedProduct);
+                if (amazonDetails) {
+                    priceComparison = [{
+                        store: 'Amazon.sa',
+                        price: amazonDetails.price || 'Check site',
+                        rating: amazonDetails.rating,
+                        reviews: amazonDetails.reviews
+                    }];
+                }
+            } else {
+                // Default to Serper API
+                console.log('Getting image from Serper for:', detectedProduct);
+                productImage = await getProductImage(detectedProduct);
+                console.log('Got Serper image:', productImage ? 'YES' : 'NO');
+            }
+
             if (!productImage) {
                 // Don't use hardcoded images
                 // productImage = findProductImage(query);  // Use full query for better matching

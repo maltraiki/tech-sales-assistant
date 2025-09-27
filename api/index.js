@@ -37,7 +37,7 @@ app.get('/health', (req, res) => {
 });
 
 app.post('/search', async (req, res) => {
-    const { query, language = 'en' } = req.body;
+    const { query, language = 'en', imageSource = 'serper' } = req.body;
 
     if (!query || query.trim().length === 0) {
         return res.status(400).json({
@@ -46,7 +46,7 @@ app.post('/search', async (req, res) => {
     }
 
     try {
-        const result = await processQuery(query, language);
+        const result = await processQuery(query, language, imageSource);
 
         // Save conversation to database
         try {
