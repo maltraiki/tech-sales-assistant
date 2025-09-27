@@ -520,25 +520,257 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
             .container {
-                padding: 28px;
+                padding: 20px;
+                border-radius: 16px;
+            }
+
+            .language-toggle {
+                top: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+
+            body.rtl .language-toggle {
+                right: auto;
+                left: 10px;
+            }
+
+            .lang-btn {
+                padding: 6px 12px;
+                font-size: 12px;
             }
 
             h1 {
-                font-size: 28px;
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .api-selector {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px 12px;
+                margin-bottom: 15px;
+            }
+
+            .api-selector label {
+                font-size: 13px;
+            }
+
+            .api-selector select {
+                width: 100%;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .examples {
+                padding: 16px;
+                margin-bottom: 20px;
+            }
+
+            .examples h3 {
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .example-queries {
+                gap: 8px;
+            }
+
+            .example-query {
+                padding: 8px 14px;
+                font-size: 13px;
+                flex: 0 0 auto;
             }
 
             .search-box {
                 flex-direction: column;
+                gap: 10px;
+            }
+
+            input {
+                padding: 14px 16px;
+                font-size: 15px;
+                border-radius: 12px;
             }
 
             button {
                 width: 100%;
                 justify-content: center;
+                padding: 14px 24px;
+                font-size: 15px;
+                border-radius: 12px;
+            }
+
+            .loading {
+                padding: 30px 20px;
+            }
+
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+                margin: 0 auto 20px;
+            }
+
+            .loading p {
+                font-size: 14px;
+                margin: 8px 0;
+            }
+
+            .response {
+                padding: 20px;
+                border-radius: 16px;
+                margin-top: 20px;
+            }
+
+            .product-image {
+                max-width: 100%;
+                margin: 16px auto;
+            }
+
+            .product-images-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin: 16px 0;
+            }
+
+            .product-image-compare {
+                height: 250px;
+                padding: 15px;
+            }
+
+            .price-comparison {
+                padding: 16px;
+                margin: 16px 0;
+            }
+
+            .price-comparison h3 {
+                font-size: 18px;
+                margin-bottom: 16px;
+            }
+
+            .price-item,
+            .price-item-link {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px;
+                margin-bottom: 10px;
+                gap: 8px;
+            }
+
+            .store-info {
+                width: 100%;
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+
+            .store-name {
+                font-size: 14px;
+                word-wrap: break-word;
+                max-width: 100%;
+            }
+
+            .price {
+                font-size: 18px;
+                margin: 8px 0;
+            }
+
+            .shop-now {
+                width: 100%;
+                text-align: center;
+                padding: 10px 16px;
+                font-size: 13px;
+                margin-top: 8px;
+            }
+
+            .sales-text {
+                font-size: 14px;
+                line-height: 1.7;
+                margin: 16px 0;
+                padding: 16px;
+            }
+
+            .sales-text h2,
+            .sales-text h3 {
+                font-size: 18px;
+                margin: 16px 0 8px 0;
+            }
+
+            .comparison-card {
+                padding: 16px;
+                margin-bottom: 15px;
+            }
+
+            .comparison-card h4 {
+                font-size: 18px;
+                margin-bottom: 12px;
+            }
+
+            .comparison-card .comparison-content {
+                font-size: 14px;
+            }
+
+            .chat-bubble {
+                padding: 12px 18px;
+                border-radius: 20px 20px 20px 4px;
+                margin: 15px 0;
+                font-size: 14px;
+            }
+
+            .error {
+                padding: 16px;
+                font-size: 14px;
+                border-radius: 12px;
             }
 
             .comparison-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+                gap: 8px;
+            }
+
+            .subtitle {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+            .example-query {
+                padding: 7px 12px;
+                font-size: 12px;
+            }
+
+            input {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+
+            button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+
+            .price-item-link:hover {
+                transform: none;
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
             }
         }
     </style>
