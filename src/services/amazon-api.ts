@@ -18,15 +18,21 @@ export interface AmazonProduct {
 
 export async function searchAmazonProducts(query: string): Promise<AmazonProduct[]> {
     if (!process.env.AMAZON_ACCESS_KEY || !process.env.AMAZON_SECRET_KEY) {
-        console.log('Amazon API keys not configured');
-        return [];
+        console.log('Amazon API keys not configured - returning search URL with affiliate tag');
+        // Return a fallback search result with affiliate link
+        return [{
+            title: query,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21`,
+            price: 'Check on Amazon',
+            image: null
+        }];
     }
 
     try {
         const api = new ProductAdvertisingAPIv1.DefaultApi();
 
         const searchRequest = new ProductAdvertisingAPIv1.SearchItemsRequest();
-        searchRequest['PartnerTag'] = 'mobily00-21'; // Your affiliate tag
+        searchRequest['PartnerTag'] = 'mobily00-21'; // Saudi Arabia affiliate tag
         searchRequest['PartnerType'] = 'Associates';
         searchRequest['Keywords'] = query;
         searchRequest['SearchIndex'] = 'Electronics';
@@ -70,12 +76,14 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
         });
 
     } catch (error: any) {
-        console.error('Amazon API error details:', {
-            message: error.message,
-            statusCode: error.statusCode,
-            response: error.response?.text
-        });
-        return [];
+        console.error('Amazon API error - returning fallback:', error.message);
+        // Return fallback search with affiliate link on error
+        return [{
+            title: query,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(query)}&tag=mobily00-21`,
+            price: 'Check on Amazon',
+            image: null
+        }];
     }
 }
 
@@ -87,25 +95,47 @@ export async function getAmazonProductImage(productName: string): Promise<string
 
 // Get product details with price and shopping links
 export async function getAmazonProductDetails(productName: string, language: string = 'en') {
+    console.log('Amazon API: Getting details for:', productName);
     const products = await searchAmazonProducts(productName);
-    if (products.length === 0) return null;
+    if (products.length === 0) {
+        console.log('Amazon API: No products found, using fallback');
+        // Always return a result with affiliate link
+        return {
+            name: productName,
+            price: 'Check on Amazon',
+            image: null,
+            url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21`,
+            shoppingLinks: [{
+                store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
+                url: `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21`,
+                price: 'Check Website',
+                available: true,
+                productName: productName,
+                isFromAmazonAPI: true
+            }]
+        };
+    }
 
     const product = products[0];
 
     // Create shopping links array with Amazon data
     const shoppingLinks = [];
 
-    // Add Amazon link with affiliate URL
-    if (product.url) {
-        shoppingLinks.push({
-            store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
-            url: product.url, // This already has the affiliate tag from the API
-            price: product.price || 'Check Website',
-            available: true,
-            productName: product.title,
-            isFromAmazonAPI: true // Flag to identify this came from Amazon API
-        });
-    }
+    // Always add Amazon link with affiliate URL
+    const affiliateUrl = product.url || `https://www.amazon.sa/s?k=${encodeURIComponent(productName)}&tag=mobily00-21`;
+
+    // Ensure affiliate tag is present
+    const urlWithTag = affiliateUrl.includes('tag=') ? affiliateUrl :
+                       (affiliateUrl.includes('?') ? `${affiliateUrl}&tag=mobily00-21` : `${affiliateUrl}?tag=mobily00-21`);
+
+    shoppingLinks.push({
+        store: language === 'ar' ? 'أمازون السعودية' : 'Amazon.sa',
+        url: urlWithTag,
+        price: product.price || 'Check Website',
+        available: true,
+        productName: product.title || productName,
+        isFromAmazonAPI: true // Flag to identify this came from Amazon API
+    });
 
     return {
         name: product.title,

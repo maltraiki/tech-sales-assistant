@@ -35,18 +35,27 @@ export async function processQuery(query: string, language: string = 'en', image
 
     console.log(`Using image source: ${imageSource}`);
 
-    // Extract product names from query for image search (English and Arabic)
+    // Smart product extraction - more flexible patterns
     const productPatterns = [
-        /iphone\s*\d+\s*(?:pro\s*max|pro|plus)?/gi,
-        /آيفون\s*\d+\s*(?:برو\s*ماكس|برو|بلس)?/gi,
-        /ايفون\s*\d+\s*(?:برو\s*ماكس|برو|بلس)?/gi,
-        /galaxy\s*s\d+\s*(?:ultra|plus)?/gi,
-        /جالكسي\s*[sس]\d+\s*(?:الترا|بلس)?/gi,
-        /سامسونج\s*[sس]\d+\s*(?:الترا|بلس)?/gi,
-        /samsung\s*s\d+\s*(?:ultra|plus)?/gi,
-        /pixel\s*\d+\s*(?:pro\s*xl|pro|a)?/gi,
-        /بكسل\s*\d+\s*(?:برو)?/gi,
-        /oneplus\s*\d+\s*(?:pro|t)?/gi
+        // iPhone patterns
+        /iphone\s*\d+\s*(?:pro\s*max|pro|plus|mini)?/gi,
+        /آيفون\s*\d+\s*(?:برو\s*ماكس|برو|بلس|ميني)?/gi,
+        /ايفون\s*\d+\s*(?:برو\s*ماكس|برو|بلس|ميني)?/gi,
+        // Samsung patterns - more flexible
+        /(?:samsung\s*)?galaxy\s*[sza]?\d+\s*(?:ultra|plus|fe)?/gi,
+        /(?:سامسونج\s*)?(?:جالكسي|قالكسي)\s*[sزا]?\d+\s*(?:الترا|بلس)?/gi,
+        /samsung\s*[sza]\d+/gi,
+        // Google Pixel
+        /(?:google\s*)?pixel\s*\d+[a]?\s*(?:pro\s*xl|pro|a)?/gi,
+        /(?:جوجل\s*)?بكسل\s*\d+\s*(?:برو)?/gi,
+        // OnePlus
+        /oneplus\s*\d+\s*(?:pro|t|r)?/gi,
+        /ون\s*بلس\s*\d+/gi,
+        // Xiaomi
+        /xiaomi\s*(?:mi\s*)?\d+\s*(?:pro|ultra|lite)?/gi,
+        /شاومي\s*(?:مي\s*)?\d+/gi,
+        // Generic phone names
+        /(?:iphone|galaxy|pixel|oneplus|xiaomi|huawei|oppo|vivo|nokia)\s*[\w\s]+/gi
     ];
 
     let detectedProducts: string[] = [];
@@ -54,6 +63,18 @@ export async function processQuery(query: string, language: string = 'en', image
         const matches = query.match(pattern);
         if (matches) {
             detectedProducts = detectedProducts.concat(matches);
+        }
+    }
+
+    // If no products detected by patterns, try to extract from query intelligently
+    if (detectedProducts.length === 0 && (query.toLowerCase().includes('phone') || query.includes('جوال') || query.includes('هاتف'))) {
+        // Extract potential product names more intelligently
+        const words = query.split(/\s+/);
+        for (let i = 0; i < words.length - 1; i++) {
+            const potentialProduct = words.slice(i, i + 3).join(' ');
+            if (potentialProduct.match(/\d/) && potentialProduct.length > 3) {
+                detectedProducts.push(potentialProduct);
+            }
         }
     }
 
@@ -80,14 +101,18 @@ export async function processQuery(query: string, language: string = 'en', image
     let shoppingLinks: any[] = [];
     let productImages: string[] = [];
 
-    if (detectedProduct) {
+    // For Amazon API, try to extract ANY product-like query
+    const productQuery = detectedProduct || query.replace(/vs|versus|ضد|مقابل|قارن/gi, '').trim();
+
+    // Always process if we have a query (for Amazon API especially)
+    if (productQuery) {
         try {
             // Choose image source based on parameter
             if (imageSource === 'amazon') {
-                console.log('Getting data from Amazon API for:', detectedProduct);
+                console.log('Getting data from Amazon API for:', productQuery);
 
                 // Get full Amazon product details including image, price, and affiliate link
-                const amazonDetails = await getAmazonProductDetails(detectedProduct, language);
+                const amazonDetails = await getAmazonProductDetails(productQuery, language);
                 if (amazonDetails) {
                     // Use Amazon image
                     productImage = amazonDetails.image || null;
@@ -115,8 +140,8 @@ export async function processQuery(query: string, language: string = 'en', image
                         isFromAmazonAPI: link.isFromAmazonAPI || false
                     }));
                 }
-            } else {
-                // Default to Serper API
+            } else if (detectedProduct) {
+                // Default to Serper API only if we detected a product
                 console.log('Getting image from Serper for:', detectedProduct);
                 productImage = await getProductImage(detectedProduct);
                 console.log('Got Serper image:', productImage ? 'YES' : 'NO');
@@ -290,16 +315,25 @@ I get SUPER excited about new tech and love sharing what makes each device speci
 No boring specs talk - I'll break it down like we're chatting at a tech store!
 Let's find you something AMAZING! 💪
 
-Always verify products exist before discussing them.
-If unsure about a product, check and suggest alternatives!`;
+CRITICAL: When user mentions ANY phone model:
+1. First CHECK if it actually exists (use your knowledge cutoff)
+2. If it doesn't exist or seems wrong, immediately say:
+   "Hmm, I'm not finding '[product name]' - did you mean [suggest real alternatives]?"
+3. Be especially careful with iPhone models (16 exists, 17 doesn't yet)
+4. Suggest the closest real product that matches what they might mean`;
 
         if (isComparison) {
             systemPrompt += `
 
-WAIT! Before comparing, CHECK BOTH PRODUCTS EXIST!
-If either product name seems wrong, STOP and say:
-"Hold up! I need to check - '[unclear product]' doesn't sound right.
-Did you mean [suggest correct name]?"
+CRITICAL VALIDATION STEP:
+1. VERIFY both products are REAL (not future/fake models)
+2. If ANY product seems wrong/doesn't exist:
+   "Wait! 🤔 I'm checking... '[wrong product]' isn't available yet/doesn't exist.
+   Did you mean [suggest 2-3 real alternatives that are similar]?"
+3. Common mistakes to catch:
+   - iPhone 17/18/19 (doesn't exist yet, suggest iPhone 16/15)
+   - Galaxy S25/S26 (check if exists based on current date)
+   - Made up model numbers
 
 Only if BOTH exist, then say:
 "YESSS! Let's put these bad boys HEAD TO HEAD and see who wins! 🥊"
