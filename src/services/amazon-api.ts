@@ -62,8 +62,12 @@ export async function searchAmazonProducts(query: string): Promise<AmazonProduct
             reviewCount: item.CustomerReviews?.Count?.DisplayValue
         }));
 
-    } catch (error) {
-        console.error('Amazon API error:', error);
+    } catch (error: any) {
+        console.error('Amazon API error details:', {
+            message: error.message,
+            statusCode: error.statusCode,
+            response: error.response?.text
+        });
         return [];
     }
 }
