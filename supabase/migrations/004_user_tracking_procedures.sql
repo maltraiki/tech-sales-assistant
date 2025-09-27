@@ -1,14 +1,18 @@
 -- User session tracking and analytics procedures
 -- Links conversations, comparisons, and clicks by user session
 
--- First, let's add session tracking to conversations table if not exists
+-- First, let's add session tracking and user_id to conversations table if not exists
 ALTER TABLE conversations
+ADD COLUMN IF NOT EXISTS user_id UUID DEFAULT gen_random_uuid(),
 ADD COLUMN IF NOT EXISTS user_session_id VARCHAR(100),
 ADD COLUMN IF NOT EXISTS comparison_query BOOLEAN DEFAULT FALSE;
 
--- Add index for session tracking
+-- Add indexes for session and user tracking
 CREATE INDEX IF NOT EXISTS idx_conversations_session
 ON conversations(user_session_id);
+
+CREATE INDEX IF NOT EXISTS idx_conversations_user_id
+ON conversations(user_id);
 
 -- Get user journey: conversation -> clicks -> potential conversion
 CREATE OR REPLACE FUNCTION get_user_journey(
